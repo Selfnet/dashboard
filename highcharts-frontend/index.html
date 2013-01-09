@@ -1,0 +1,110 @@
+<!doctype html>
+<meta charset=utf-8>
+
+<title>Dashboard</title>
+
+<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript">
+jQuery.noConflict();
+</script>
+<script type="text/javascript" src="highcharts.js"></script>
+<script type="text/javascript" src="theme.js"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<div id="container"></div>
+
+
+<script>
+
+Highcharts.setOptions({
+    global: {
+        useUTC: false
+    }
+});
+
+
+
+function init() {
+    CHARTS = {};
+    SERIES = {};
+    
+    jQuery.getJSON('/cgi-bin/history.json.py', function(data) {
+        var lastrefresh = data.meta.refresh;
+        var interval = data.meta.interval;
+        var container = document.getElementById('container');
+
+        for (var chartnum = 0; chartnum < data.charts.length; chartnum++) {
+            var chart = data.charts[chartnum];
+            var title = chart.name;
+
+            var div = document.createElement('div');
+            div.id = title;
+            div.setAttribute("class", "chart");
+            container.appendChild(div);
+
+            var settings = {
+                chart: {
+                    renderTo: title, // div with id from title field
+                    type: 'areaspline',
+                    marginRight: 10
+                },
+                title: {
+                    text: title
+                },
+                yAxis: {
+                    title: {
+                        text: chart.unit
+                    }
+                },
+                series: []
+            };
+            var c = new Highcharts.Chart(settings);
+            CHARTS[title] = c;
+
+            for (var g = 0; g < chart.graphs.length; g++) {
+                var graph = chart.graphs[g];
+                var values = data.history[graph.dataset].values;
+                var points = [];
+                var length = values.length;
+                var firstelement = 0;
+                if (length > chart.maxvalues) {
+                    firstelement = length - chart.maxvalues;
+                }
+                for (var i = firstelement; i < length; i++) {
+                    var stepsbehind = i + 1 - length;
+                    var x = (lastrefresh + (interval * stepsbehind)) * 1000;
+                    points.push([x, values[i]]);
+                }
+
+                var s = c.addSeries({
+                    name: graph.name,
+                    dataset: graph.dataset,
+                    data: points
+                });
+
+                SERIES[graph.dataset] = s;
+            }
+        }
+        
+        setInterval("fetchUpdate()", data.meta.interval*1000);
+    });
+}
+
+function fetchUpdate() {
+    jQuery.getJSON('/cgi-bin/latest.json.py', function(data) {
+        var lastrefresh = data.meta.refresh;
+        for (var name in data.latest) {
+            var set = data.latest[name];
+            SERIES[name].addPoint([lastrefresh*1000, set.value], false, true);
+        }
+        for (var chartname in CHARTS) {
+            CHARTS[chartname].redraw();
+        }
+    });
+}
+
+init();
+
+</script>
+
