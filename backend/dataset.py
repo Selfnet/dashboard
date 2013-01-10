@@ -1,5 +1,6 @@
 from os import popen
 from config import config
+from urllib import urlopen
 
 
 def rate(value, interval):
@@ -97,3 +98,22 @@ class MultiSNMP(Dataset):
             total += t.update()
         self.add(total)
 
+class SimpleHTTP(Dataset):
+    def __init__(self, url, cumulative=False, unit="", factor=1):
+        super(SimpleHTTP, self).__init__(cumulative=cumulative, unit=unit, factor=factor)
+        self.url = url
+
+    def gethttp(self):
+        try:
+            f = urlopen(self.url)
+            i = int(f.read().strip())
+            f.close()
+            return i
+        except ValueError:
+            return 0
+
+    def update(self):
+        value = self.gethttp()
+        latest = self.add(value)
+        return latest
+        

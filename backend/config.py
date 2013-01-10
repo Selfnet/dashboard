@@ -5,6 +5,17 @@ config = {
 }
 
 charts = [{
+        "name": "Internet (Selfnet + WH-Netz)",
+        "graphs": [{
+            "name": "Upstream",
+            "dataset": "belwue uplink out"
+            },{
+            "name": "Downstream",
+            "dataset": "belwue uplink in"
+        }],
+        "unit": "bits per second",
+        "maxvalues": 90 # 90 values * 10sec = 15min history
+    },{
         "name": "Selfnet",
         "graphs": [{
             "name": "Upstream",
@@ -45,6 +56,14 @@ charts = [{
         }],
         "unit": "connected clients",
         "maxvalues": 90 # 90 values * 10sec = 15min history
+    },{
+        "name": "RT Tickets",
+        "graphs": [{
+            "name": "open tickets",
+            "dataset": "open rt tickets"
+        }],
+        "unit": "tickets",
+        "maxvalues": 90 # 90 values * 10sec = 15min history
     }
 ]
 
@@ -58,6 +77,43 @@ datasets = {
             "cumulative": False
         }],
         "unit": "clients online"
+    },
+    "open rt tickets": {
+        "type": "http",
+        "url": "https://roundcube.selfnet.de/tickets.php",
+        "factor": 1,
+        "cumulative": False,
+        "unit": "tickets"
+    },
+    "belwue uplink out": {
+        "type": "snmp",
+        "targets": [{
+            "host": "stuwost1",
+            "oid": ".1.3.6.1.2.1.2.2.1.16.570",
+            "factor": 8,
+            "cumulative": True
+        },{
+            "host": "stuwost2",
+            "oid": ".1.3.6.1.2.1.2.2.1.16.566",
+            "factor": 8,
+            "cumulative": True
+        }],
+        "unit": "bits per second"
+    },
+    "belwue uplink in": {
+        "type": "snmp",
+        "targets": [{
+            "host": "stuwost1",
+            "oid": ".1.3.6.1.2.1.2.2.1.10.570",
+            "factor": 8,
+            "cumulative": True
+        },{
+            "host": "stuwost2",
+            "oid": ".1.3.6.1.2.1.2.2.1.10.566",
+            "factor": 8,
+            "cumulative": True
+        }],
+        "unit": "bits per second"
     },
     "wh-netz uplink out": {
         "type": "snmp",

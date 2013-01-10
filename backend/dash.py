@@ -23,6 +23,8 @@ if __name__ == "__main__":
                 data[setname] = dataset.SimpleSNMP(host=target["host"], oid=target["oid"], cumulative=target["cumulative"], unit=d["unit"], factor=target["factor"])
             else:
                 data[setname] = dataset.MultiSNMP(targets=d["targets"], unit=d["unit"])
+        elif d["type"] == "http":
+            data[setname] = dataset.SimpleHTTP(url=d["url"], cumulative=d["cumulative"], unit=d["unit"], factor=d["factor"])
     mc = memcache.Client(config.config["memcache_servers"], debug=0)
 
     while True:
