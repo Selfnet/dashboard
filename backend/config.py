@@ -89,12 +89,12 @@ datasets = {
         "type": "snmp",
         "targets": [{
             "host": "stuwost1",
-            "oid": ".1.3.6.1.2.1.2.2.1.16.570",
+            "oid": ".1.3.6.1.2.1.31.1.1.1.10.570",
             "factor": 8,
             "cumulative": True
         },{
             "host": "stuwost2",
-            "oid": ".1.3.6.1.2.1.2.2.1.16.566",
+            "oid": ".1.3.6.1.2.1.31.1.1.1.10.566",
             "factor": 8,
             "cumulative": True
         }],
@@ -104,12 +104,12 @@ datasets = {
         "type": "snmp",
         "targets": [{
             "host": "stuwost1",
-            "oid": ".1.3.6.1.2.1.2.2.1.10.570",
+            "oid": ".1.3.6.1.2.1.31.1.1.1.6.570",
             "factor": 8,
             "cumulative": True
         },{
             "host": "stuwost2",
-            "oid": ".1.3.6.1.2.1.2.2.1.10.566",
+            "oid": ".1.3.6.1.2.1.31.1.1.1.6.566",
             "factor": 8,
             "cumulative": True
         }],
@@ -119,7 +119,7 @@ datasets = {
         "type": "snmp",
         "targets": [{
             "host": "stuwost1",
-            "oid": ".1.3.6.1.2.1.2.2.1.10.571",
+            "oid": ".1.3.6.1.2.1.31.1.1.1.6.571",
             "factor": 8,
             "cumulative": True
         }],
@@ -129,7 +129,7 @@ datasets = {
         "type": "snmp",
         "targets": [{
             "host": "stuwost1",
-            "oid": ".1.3.6.1.2.1.2.2.1.16.571",
+            "oid": ".1.3.6.1.2.1.31.1.1.1.10.571",
             "factor": 8,
             "cumulative": True
         }],
@@ -139,12 +139,12 @@ datasets = {
         "type": "snmp",
         "targets": [{
             "host": "stuwost2",
-            "oid": ".1.3.6.1.2.1.2.2.1.10.580",
+            "oid": ".1.3.6.1.2.1.31.1.1.1.6.580",
             "factor": 8,
             "cumulative": True
         },{
             "host": "stuwost1",
-            "oid": ".1.3.6.1.2.1.2.2.1.10.578",
+            "oid": ".1.3.6.1.2.1.31.1.1.1.6.578",
             "factor": 8,
             "cumulative": True
         }],
@@ -154,12 +154,12 @@ datasets = {
         "type": "snmp",
         "targets": [{
             "host": "stuwost2",
-            "oid": ".1.3.6.1.2.1.2.2.1.16.580",
+            "oid": ".1.3.6.1.2.1.31.1.1.1.10.580",
             "factor": 8,
             "cumulative": True
         },{
             "host": "stuwost1",
-            "oid": ".1.3.6.1.2.1.2.2.1.16.578",
+            "oid": ".1.3.6.1.2.1.31.1.1.1.10.578",
             "factor": 8,
             "cumulative": True
         }],
