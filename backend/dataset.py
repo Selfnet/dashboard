@@ -18,7 +18,10 @@ class Dataset(object):
         self.maxvalues = config["maxvalues"]
 
     def add(self, data):
-        data = data * self.factor
+        try:
+            data = data * self.factor
+        except TypeError:
+            data = 0
         if self.cumulative:
             if self.lastvalue == 0:
                 self.lastvalue = data
