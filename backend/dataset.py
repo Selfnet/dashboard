@@ -121,8 +121,8 @@ class SimpleSNMP(Dataset):
         except ValueError:
             print("ERROR: can't convert " + repr(data) + " to integer")
             print("       response: " + str(out))
-            print("       host: " + host)
-            print("       oid: " + oid)
+            print("       host: " + self.host)
+            print("       oid: " + self.oid)
             return
 
     def update(self):
