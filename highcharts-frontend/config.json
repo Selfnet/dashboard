@@ -69,18 +69,18 @@
             ], 
             "name": "NOC WLAN Clients", 
             "unit": "connected clients", 
-            "maxvalues": 2880
+            "maxvalues": 1080
         }, 
         {
             "graphs": [
                 {
-                    "name": "open tickets", 
+                    "name": "pending tickets",
                     "dataset": "open rt tickets"
                 }
             ], 
             "name": "RT Tickets", 
             "unit": "tickets", 
-            "maxvalues": 2880
+            "maxvalues": 1080
         }
     ]
 }

@@ -1,7 +1,7 @@
 config = {
     "memcache_servers": ['127.0.0.1:11211'],
     "interval": 10, # update interval # seconds
-    "maxvalues": 180 # number of values to be stored in cache # 10*180 = 30min
+    "maxvalues": 1080 # number of values to be stored in cache # 10*1080 = 3h
 }
 
 datasets = {
