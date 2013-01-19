@@ -37,5 +37,5 @@ if __name__ == "__main__":
             history[name] = data[name].getdict()
             latest[name] = {"value": data[name].getlatest()}
         
-        mc.set_multi({"meta": meta, "charts": config.charts, "latest": latest, "history": history})
+        mc.set_multi({"meta": meta, "latest": latest, "history": history})
         time.sleep(config.config["interval"])

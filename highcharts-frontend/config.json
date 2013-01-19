@@ -1,0 +1,86 @@
+{
+    "charts": [
+        {
+            "graphs": [
+                {
+                    "name": "Upstream", 
+                    "dataset": "belwue uplink out"
+                }, 
+                {
+                    "name": "Downstream", 
+                    "dataset": "belwue uplink in"
+                }
+            ], 
+            "name": "Internet (Selfnet + WH-Netz)", 
+            "unit": "bits per second", 
+            "maxvalues": 30
+        }, 
+        {
+            "graphs": [
+                {
+                    "name": "Upstream", 
+                    "dataset": "selfnet uplink out"
+                }, 
+                {
+                    "name": "Downstream", 
+                    "dataset": "selfnet uplink in"
+                }
+            ], 
+            "name": "Selfnet", 
+            "unit": "bits per second", 
+            "maxvalues": 30
+        }, 
+        {
+            "graphs": [
+                {
+                    "name": "Upstream", 
+                    "dataset": "selfnet uplink ipv6 out"
+                }, 
+                {
+                    "name": "Downstream", 
+                    "dataset": "selfnet uplink ipv6 in"
+                }
+            ], 
+            "name": "Selfnet, IPv6 only", 
+            "unit": "bits per second", 
+            "maxvalues": 30
+        }, 
+        {
+            "graphs": [
+                {
+                    "name": "Upstream", 
+                    "dataset": "wh-netz uplink out"
+                }, 
+                {
+                    "name": "Downstream", 
+                    "dataset": "wh-netz uplink in"
+                }
+            ], 
+            "name": "WH-Netz", 
+            "unit": "bits per second", 
+            "maxvalues": 30
+        }, 
+        {
+            "graphs": [
+                {
+                    "name": "clients online", 
+                    "dataset": "NOC WLAN Clients"
+                }
+            ], 
+            "name": "NOC WLAN Clients", 
+            "unit": "connected clients", 
+            "maxvalues": 2880
+        }, 
+        {
+            "graphs": [
+                {
+                    "name": "open tickets", 
+                    "dataset": "open rt tickets"
+                }
+            ], 
+            "name": "RT Tickets", 
+            "unit": "tickets", 
+            "maxvalues": 2880
+        }
+    ]
+}

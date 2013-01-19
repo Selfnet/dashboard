@@ -4,69 +4,6 @@ config = {
     "maxvalues": 180 # number of values to be stored in cache # 10*180 = 30min
 }
 
-charts = [{
-        "name": "Internet (Selfnet + WH-Netz)",
-        "graphs": [{
-            "name": "Upstream",
-            "dataset": "belwue uplink out"
-            },{
-            "name": "Downstream",
-            "dataset": "belwue uplink in"
-        }],
-        "unit": "bits per second",
-        "maxvalues": 90 # 90 values * 10sec = 15min history
-    },{
-        "name": "Selfnet",
-        "graphs": [{
-            "name": "Upstream",
-            "dataset": "selfnet uplink out"
-            },{
-            "name": "Downstream",
-            "dataset": "selfnet uplink in"
-        }],
-        "unit": "bits per second",
-        "maxvalues": 90 # 90 values * 10sec = 15min history
-    },{
-        "name": "Selfnet, IPv6 only",
-        "graphs": [{
-            "name": "Upstream",
-            "dataset": "selfnet uplink ipv6 out"
-            },{
-            "name": "Downstream",
-            "dataset": "selfnet uplink ipv6 in"
-        }],
-        "unit": "bits per second",
-        "maxvalues": 90 # 90 values * 10sec = 15min history
-    },{
-        "name": "WH-Netz",
-        "graphs": [{
-            "name": "Upstream",
-            "dataset": "wh-netz uplink out"
-            },{
-            "name": "Downstream",
-            "dataset": "wh-netz uplink in"
-        }],
-        "unit": "bits per second",
-        "maxvalues": 90 # 90 values * 10sec = 15min history
-    },{
-        "name": "NOC WLAN Clients",
-        "graphs": [{
-            "name": "clients online",
-            "dataset": "NOC WLAN Clients"
-        }],
-        "unit": "connected clients",
-        "maxvalues": 90 # 90 values * 10sec = 15min history
-    },{
-        "name": "RT Tickets",
-        "graphs": [{
-            "name": "open tickets",
-            "dataset": "open rt tickets"
-        }],
-        "unit": "tickets",
-        "maxvalues": 90 # 90 values * 10sec = 15min history
-    }
-]
-
 datasets = {
     "NOC WLAN Clients": {
         "type": "snmp",
