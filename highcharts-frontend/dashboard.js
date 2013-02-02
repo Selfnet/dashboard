@@ -6,11 +6,46 @@ Highcharts.setOptions({
 
 
 
-function initCharts() {
+function ChartSeriesTarget(series) {
+    this.series = series;
+}
+ChartSeriesTarget.prototype.add = function(time, value) {
+    this.series.addPoint([time, value], false, false);
+}
+ChartSeriesTarget.prototype.populate = function(list) {
+    this.series.setData(list);
+}
+
+
+
+function HtmlTarget(element, formatter) {
+    this.element = element;
+    this.formatter = formatter;
+}
+HtmlTarget.prototype.add = function(time, value) {
+    if (this.formatter == undefined) {
+        this.element.innerHtml = value;
+    }
+    else {
+        this.element.innerHtml = formatter(value);
+    }
+}
+HtmlTarget.prototype.populate = function(list) {
+    keyvalue = list[list.length - 1];
+    this.add(keyvalue[0], keyvalue[1]);
+}
+
+
+
+function Dashboard() {
+    this.initCharts();
+    this.fetchHistory();
+}
+Dashboard.prototype.initCharts = function() {
     CHARTS = {};
-    SERIES = {};
+    targets = {};
     MAXVALUES = {};
-    
+
     jQuery.getJSON('config.json', function(data) {
         var container = document.getElementById('container');
 
@@ -39,6 +74,10 @@ function initCharts() {
                 },
                 series: []
             };
+            if (chart.type == "integer") {
+                settings.yAxis.allowDecimals = false;
+            }
+
             var c = new Highcharts.Chart(settings);
             CHARTS[title] = c;
 
@@ -51,7 +90,7 @@ function initCharts() {
                     data: []
                 });
 
-                SERIES[graph.dataset] = s;
+                targets[graph.dataset] = new ChartSeriesTarget(s);
                 MAXVALUES[graph.dataset] = chart.maxvalues;
             }
         }
@@ -59,8 +98,11 @@ function initCharts() {
         element.parentNode.removeChild(element);
     });
 }
+Dashboard.prototype.fetchHistory = function() {
 
-function fetchHistory() {
+    // store local "this" for use in setInterval callback
+    var t = this;
+
     jQuery.getJSON('/cgi-bin/history.json.py', function(data) {
         var interval = data.meta.interval;
         var lastrefresh = data.meta.refresh;
@@ -72,36 +114,31 @@ function fetchHistory() {
             if (length > maxvalues) {
                 firstelement = length - maxvalues;
             }
+            var points = [];
             for (var i = firstelement; i < length; i++) {
                 var stepsbehind = i + 1 - length;
                 var x = (lastrefresh + (interval * stepsbehind)) * 1000;
-                SERIES[name].addPoint([x, values[i]], false, false);
+                points.push([x, values[i]]);
             }
+            targets[name].populate(points);
         }
         for (var chartname in CHARTS) {
             CHARTS[chartname].redraw();
         }
-        setInterval("fetchUpdate()", interval*1000);
+        // set interval to update data every n seconds
+        setInterval(function(){t.fetchUpdate();}, interval*1000);
     });
 }
-
-function fetchUpdate() {
+Dashboard.prototype.fetchUpdate = function() {
     jQuery.getJSON('/cgi-bin/latest.json.py', function(data) {
         var lastrefresh = data.meta.refresh;
         for (var name in data.latest) {
             var set = data.latest[name];
-            SERIES[name].addPoint([lastrefresh*1000, set.value], false, true);
+            targets[name].add(lastrefresh*1000, set.value);
         }
         for (var chartname in CHARTS) {
             CHARTS[chartname].redraw();
         }
     });
 }
-
-function init() {
-    initCharts();
-    fetchHistory();
-}
-
-init();
 
