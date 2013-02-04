@@ -13,13 +13,63 @@ jQuery.noConflict();
 </head>
 
 <div id="container">
-    <span id="loading_msg">loading...</span>
+<!-- text example
+    <div class="chart" style="width:400px;height:200px;padding:20px;font-size:1.7em;vertical-align:middle;">
+        <div style="background:#111;"><span id="incoming" style="font-size:1.74em;"></span><br/><span>Downstream</span></div><br/>
+        <div style="background:#111;"><span id="outgoing" style="font-size:1.74em;"></span><br/><span>Upstream</span></div><br/>
+    </div>
+    <br/>
+-->
+    <div class="chart" id="internet"></div>
+    <div class="chart" id="selfnet"></div>
+    <div class="chart" id="selfnet6"></div>
+    <div class="chart" id="wh-netz"></div>
+    <div class="chart" id="wlan"></div>
+    <div class="chart" id="rt"></div>
 </div>
 
 
 <script type="text/javascript" src="dashboard.js"></script>
 <script type="text/javascript">
 
+Highcharts.setOptions({
+    global: {
+        useUTC: false
+    }
+});
+
 dashboard = new Dashboard();
+
+dashboard.createChart("internet", "Internet Uplink", "bits per second", "integer");
+dashboard.addSeriesToChart("Internet Uplink", "Upstream",   "belwue uplink out", 360);
+dashboard.addSeriesToChart("Internet Uplink", "Downstream", "belwue uplink in", 360);
+
+dashboard.createChart("selfnet", "Selfnet", "bits per second", "integer");
+dashboard.addSeriesToChart("Selfnet", "Upstream",   "selfnet uplink out", 360);
+dashboard.addSeriesToChart("Selfnet", "Downstream", "selfnet uplink in", 360);
+
+dashboard.createChart("selfnet6", "Selfnet (IPv6 only)", "bits per second", "integer");
+dashboard.addSeriesToChart("Selfnet (IPv6 only)", "Upstream",   "selfnet uplink ipv6 out", 360);
+dashboard.addSeriesToChart("Selfnet (IPv6 only)", "Downstream", "selfnet uplink ipv6 in", 360);
+
+dashboard.createChart("wh-netz", "WH-Netz", "bits per second", "integer");
+dashboard.addSeriesToChart("WH-Netz", "Upstream",   "wh-netz uplink out", 360);
+dashboard.addSeriesToChart("WH-Netz", "Downstream", "wh-netz uplink in", 360);
+
+dashboard.createChart("wlan", "NOC WLAN Clients", "clients", "integer");
+dashboard.addSeriesToChart("NOC WLAN Clients", "clients online", "NOC WLAN Clients", 1080);
+
+dashboard.createChart("rt", "RT Tickets", "tickets", "integer");
+dashboard.addSeriesToChart("RT Tickets", "pending tickets", "open rt tickets", 1080);
+
+/*
+text example
+
+dashboard.addTarget("belwue uplink out", new HtmlTarget("outgoing", function(value) { return formatData(value, "bit/s"); }));
+dashboard.addTarget("belwue uplink in", new HtmlTarget("incoming", function(value) { return formatData(value, "bit/s"); }));
+*/
+
+dashboard.fetchHistory();
+dashboard.scheduleUpdates();
 
 </script>
