@@ -137,6 +137,7 @@ datasets = {
         "targets": [{
             "host": "stuwost1",
             "oid": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.0.1.1",
+            "factor": 1,
             "cumulative": False
         }],
         "unit": "routes"
@@ -146,6 +147,7 @@ datasets = {
         "targets": [{
             "host": "stuwost1",
             "oid": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.1.2.1",
+            "factor": 1,
             "cumulative": False
         }],
         "unit": "routes"
@@ -155,6 +157,7 @@ datasets = {
         "targets": [{
             "host": "stuwost2",
             "oid": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.0.1.1",
+            "factor": 1,
             "cumulative": False
         }],
         "unit": "routes"
@@ -164,6 +167,7 @@ datasets = {
         "targets": [{
             "host": "stuwost2",
             "oid": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.1.2.1",
+            "factor": 1,
             "cumulative": False
         }],
         "unit": "routes"
