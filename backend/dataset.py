@@ -111,19 +111,24 @@ class SimpleSNMP(Dataset):
         fetch a value from the SNMP target
         returns an integer or None
         """
-        cmd = " ".join(["snmpget -c public -v 2c", self.host, self.oid])
-        out = popen(cmd).readline()
-        data = out.split(" ")[-1].strip()
-        if not data:
-            return
         try:
+            cmd = " ".join(["snmpget -c public -v 2c", self.host, self.oid])
+            out = popen(cmd).readline()
+            data = out.split(" ")[-1].strip()
+            if not data:
+                return 0
             return int(data)
         except ValueError:
             print("ERROR: can't convert " + repr(data) + " to integer")
-            print("       response: " + str(out))
+            print("       SNMP response: " + str(out))
             print("       host: " + self.host)
-            print("       oid: " + self.oid)
-            return
+            print("       SNMP OID: " + self.oid)
+            return 0
+        except Exception, e:
+            print("ERROR: " + str(e))
+            print("       host: " + self.host)
+            print("       SNMP OID: " + self.oid)
+            return 0
 
     def update(self):
         value = self.getsnmp()
@@ -167,10 +172,17 @@ class SimpleHTTP(Dataset):
     def gethttp(self):
         try:
             f = urlopen(self.url)
-            i = int(f.read().strip())
+            output = f.read().strip()
+            i = int(output)
             f.close()
             return i
         except ValueError:
+            print("ERROR: cannot convert HTTP response to integer")
+            print("       HTTP response: " + str(output))
+            return 0
+        except Exception, e:
+            print("ERROR: " + str(e))
+            print("       HTTP response: " + str(output))
             return 0
 
     def update(self):
