@@ -131,6 +131,42 @@ datasets = {
             "cumulative": True
         }],
         "unit": "bits per second"
+    },
+    "stuwost1 received routes ipv4": {
+        "type": "snmp",
+        "targets": [{
+            "host": "stuwost1",
+            "oid": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.0.1.1",
+            "cumulative": False
+        }],
+        "unit": "routes"
+    },
+    "stuwost1 received routes ipv6": {
+        "type": "snmp",
+        "targets": [{
+            "host": "stuwost1",
+            "oid": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.1.2.1",
+            "cumulative": False
+        }],
+        "unit": "routes"
+    },
+    "stuwost2 received routes ipv4": {
+        "type": "snmp",
+        "targets": [{
+            "host": "stuwost2",
+            "oid": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.0.1.1",
+            "cumulative": False
+        }],
+        "unit": "routes"
+    },
+    "stuwost2 received routes ipv6": {
+        "type": "snmp",
+        "targets": [{
+            "host": "stuwost2",
+            "oid": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.1.2.1",
+            "cumulative": False
+        }],
+        "unit": "routes"
     }
 }
 

@@ -24,6 +24,8 @@ jQuery.noConflict();
     <div class="chart" id="selfnet"></div>
     <div class="chart" id="selfnet6"></div>
     <div class="chart" id="wh-netz"></div>
+    <div class="chart" id="routes-ipv4"></div>
+    <div class="chart" id="routes-ipv6"></div>
     <div class="chart" id="wlan"></div>
     <div class="chart" id="rt"></div>
 </div>
@@ -55,6 +57,14 @@ dashboard.addSeriesToChart("Selfnet (IPv6 only)", "Downstream", "selfnet uplink 
 dashboard.createChart("wh-netz", "WH-Netz", "bits per second", "integer");
 dashboard.addSeriesToChart("WH-Netz", "Upstream",   "wh-netz uplink out", 360);
 dashboard.addSeriesToChart("WH-Netz", "Downstream", "wh-netz uplink in", 360);
+
+dashboard.createChart("routes-ipv4", "Received IPv4 Routes", "routes", "integer");
+dashboard.addSeriesToChart("Received IPv4 Routes", "StuWoSt1", "stuwost1 received routes ipv4", 1080);
+dashboard.addSeriesToChart("Received IPv4 Routes", "StuWoSt2", "stuwost2 received routes ipv4", 1080);
+
+dashboard.createChart("routes-ipv6", "Received IPv6 Routes", "routes", "integer");
+dashboard.addSeriesToChart("Received IPv6 Routes", "StuWoSt1", "stuwost1 received routes ipv6", 1080);
+dashboard.addSeriesToChart("Received IPv6 Routes", "StuWoSt2", "stuwost2 received routes ipv6", 1080);
 
 dashboard.createChart("wlan", "NOC WLAN Clients", "clients", "integer");
 dashboard.addSeriesToChart("NOC WLAN Clients", "clients online", "NOC WLAN Clients", 1080);
