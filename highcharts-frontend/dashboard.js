@@ -131,6 +131,7 @@ Dashboard.prototype.createChart = function(container, title, ylabel, datatype) {
         chart: {
             renderTo: container,
             type: 'areaspline',
+            zoomType: "x",
             marginRight: 10
         },
         title: {
