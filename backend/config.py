@@ -22,6 +22,16 @@ datasets = {
         "cumulative": False,
         "unit": "tickets"
     },
+    "user vpn connections": {
+        "type": "snmp",
+        "targets": [{
+            "host": "10.0.2.21",
+            "oid": "1.3.6.1.4.1.9.9.392.1.3.3.0",
+            "factor": 1,
+            "cumulative": False,
+        }],
+        "unit": "users"
+    },
     "belwue uplink out": {
         "type": "snmp",
         "targets": [{
