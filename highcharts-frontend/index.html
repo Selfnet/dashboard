@@ -44,20 +44,20 @@ Highcharts.setOptions({
 dashboard = new Dashboard();
 
 dashboard.createChart("internet", "Internet Uplink", "bits per second", ["integer", "zero"]);
-dashboard.addSeriesToChart("Internet Uplink", "Upstream",   "belwue uplink out", 360);
 dashboard.addSeriesToChart("Internet Uplink", "Downstream", "belwue uplink in", 360);
+dashboard.addSeriesToChart("Internet Uplink", "Upstream",   "belwue uplink out", 360);
 
 dashboard.createChart("selfnet", "Selfnet", "bits per second", ["integer", "zero"]);
-dashboard.addSeriesToChart("Selfnet", "Upstream",   "selfnet uplink out", 360);
 dashboard.addSeriesToChart("Selfnet", "Downstream", "selfnet uplink in", 360);
+dashboard.addSeriesToChart("Selfnet", "Upstream",   "selfnet uplink out", 360);
 
 dashboard.createChart("selfnet6", "Selfnet (IPv6 only)", "bits per second", ["integer", "zero"]);
-dashboard.addSeriesToChart("Selfnet (IPv6 only)", "Upstream",   "selfnet uplink ipv6 out", 360);
 dashboard.addSeriesToChart("Selfnet (IPv6 only)", "Downstream", "selfnet uplink ipv6 in", 360);
+dashboard.addSeriesToChart("Selfnet (IPv6 only)", "Upstream",   "selfnet uplink ipv6 out", 360);
 
 dashboard.createChart("wh-netz", "WH-Netz", "bits per second", ["integer", "zero"]);
-dashboard.addSeriesToChart("WH-Netz", "Upstream",   "wh-netz uplink out", 360);
 dashboard.addSeriesToChart("WH-Netz", "Downstream", "wh-netz uplink in", 360);
+dashboard.addSeriesToChart("WH-Netz", "Upstream",   "wh-netz uplink out", 360);
 
 dashboard.createChart("routes-ipv4", "Received IPv4 Routes", "routes", ["integer"]);
 dashboard.addSeriesToChart("Received IPv4 Routes", "StuWoSt1", "stuwost1 received routes ipv4", 1080);
