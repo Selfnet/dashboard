@@ -13,8 +13,6 @@ jQuery.noConflict();
 </head>
 
 <div id="container">
-    <div class="chart" id="selfnet"></div>
-    <div class="chart" id="wh-netz"></div>
     <div class="chart" id="stuwost1"></div>
     <div class="chart" id="stuwost2"></div>
     <div class="chart" id="stuwost1-v6"></div>
@@ -40,21 +38,13 @@ Highcharts.setOptions({
 
 dashboard = new Dashboard();
 
-dashboard.createChart("selfnet", "Selfnet", "bits per second", ["integer", "zero"]);
-dashboard.addSeriesToChart("Selfnet", "Downstream", "selfnet uplink in", 360);
-dashboard.addSeriesToChart("Selfnet", "Upstream",   "selfnet uplink out", 360);
-
-dashboard.createChart("wh-netz", "WH-Netz", "bits per second", ["integer", "zero"]);
-dashboard.addSeriesToChart("WH-Netz", "Downstream", "wh-netz uplink in", 360);
-dashboard.addSeriesToChart("WH-Netz", "Upstream",   "wh-netz uplink out", 360);
-
 dashboard.createChart("stuwost1", "StuWoSt1 ↔ BelWü", "bits per second", ["integer", "zero"]);
-dashboard.addSeriesToChart("StuWoSt1 ↔ BelWü", "Downstream", "stuwost1 uplink ipv4 in", 360);
-dashboard.addSeriesToChart("StuWoSt1 ↔ BelWü", "Upstream",   "stuwost1 uplink ipv4 out", 360);
+dashboard.addSeriesToChart("StuWoSt1 ↔ BelWü", "Downstream", "stuwost1 uplink in", 360);
+dashboard.addSeriesToChart("StuWoSt1 ↔ BelWü", "Upstream",   "stuwost1 uplink out", 360);
 
 dashboard.createChart("stuwost2", "StuWoSt2 ↔ BelWü", "bits per second", ["integer", "zero"]);
-dashboard.addSeriesToChart("StuWoSt2 ↔ BelWü", "Downstream", "stuwost2 uplink ipv4 in", 360);
-dashboard.addSeriesToChart("StuWoSt2 ↔ BelWü", "Upstream",   "stuwost2 uplink ipv4 out", 360);
+dashboard.addSeriesToChart("StuWoSt2 ↔ BelWü", "Downstream", "stuwost2 uplink in", 360);
+dashboard.addSeriesToChart("StuWoSt2 ↔ BelWü", "Upstream",   "stuwost2 uplink out", 360);
 
 dashboard.createChart("stuwost1-v6", "StuWoSt1 ↔ BelWü (IPv6)", "bits per second", ["integer", "zero"]);
 dashboard.addSeriesToChart("StuWoSt1 ↔ BelWü (IPv6)", "Downstream", "stuwost1 uplink ipv6 in", 360);

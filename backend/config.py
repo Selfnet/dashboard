@@ -32,7 +32,7 @@ datasets = {
         }],
         "unit": "users"
     },
-    "stuwost1 uplink ipv4 out": {
+    "stuwost1 uplink out": {
         "type": "snmp",
         "targets": [{
             "host": "stuwost1",
@@ -42,7 +42,7 @@ datasets = {
         }],
         "unit": "bits per second"
     },
-    "stuwost1 uplink ipv4 in": {
+    "stuwost1 uplink in": {
         "type": "snmp",
         "targets": [{
             "host": "stuwost1",
@@ -52,7 +52,7 @@ datasets = {
         }],
         "unit": "bits per second"
     },
-    "stuwost2 uplink ipv4 out": {
+    "stuwost2 uplink out": {
         "type": "snmp",
         "targets": [{
             "host": "stuwost2",
@@ -62,7 +62,7 @@ datasets = {
         }],
         "unit": "bits per second"
     },
-    "stuwost2 uplink ip4 in": {
+    "stuwost2 uplink in": {
         "type": "snmp",
         "targets": [{
             "host": "stuwost2",
@@ -76,37 +76,37 @@ datasets = {
         "type": "snmp",
         "targets": [{
             "host": "stuwost1",
-            "oid": ".1.3.6.1.4.1.2636.3.11.1.3.1.1.1.570",
-            "factor": 8,
-            "cumulative": True
-        }],
-        "unit": "bits per second"
-    },
-    "stuwost1 uplink ipv4 in": {
-        "type": "snmp",
-        "targets": [{
-            "host": "stuwost1",
             "oid": ".1.3.6.1.4.1.2636.3.11.1.3.1.1.2.570",
             "factor": 8,
             "cumulative": True
         }],
         "unit": "bits per second"
     },
-    "stuwost2 uplink ipv4 out": {
+    "stuwost1 uplink ipv6 in": {
         "type": "snmp",
         "targets": [{
-            "host": "stuwost2",
-            "oid": ".1.3.6.1.4.1.2636.3.11.1.3.1.1.1.566",
+            "host": "stuwost1",
+            "oid": ".1.3.6.1.4.1.2636.3.11.1.3.1.1.1.570",
             "factor": 8,
             "cumulative": True
         }],
         "unit": "bits per second"
     },
-    "stuwost2 uplink ip4 in": {
+    "stuwost2 uplink ipv6 out": {
         "type": "snmp",
         "targets": [{
             "host": "stuwost2",
             "oid": ".1.3.6.1.4.1.2636.3.11.1.3.1.1.2.566",
+            "factor": 8,
+            "cumulative": True
+        }],
+        "unit": "bits per second"
+    },
+    "stuwost2 uplink ipv6 in": {
+        "type": "snmp",
+        "targets": [{
+            "host": "stuwost2",
+            "oid": ".1.3.6.1.4.1.2636.3.11.1.3.1.1.1.566",
             "factor": 8,
             "cumulative": True
         }],
