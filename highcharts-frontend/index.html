@@ -28,6 +28,7 @@ jQuery.noConflict();
     <div class="chart" id="routes-ipv6"></div>
     <div class="chart" id="wlan"></div>
     <div class="chart" id="rt"></div>
+    <div class="chart" id="uservpn"></div>
 </div>
 
 
@@ -71,6 +72,9 @@ dashboard.addSeriesToChart("NOC WLAN Clients", "clients online", "NOC WLAN Clien
 
 dashboard.createChart("rt", "RT Tickets", "tickets", "integer");
 dashboard.addSeriesToChart("RT Tickets", "pending tickets", "open rt tickets", 1080);
+
+dashboard.createChart("uservpn", "User VPN", "connections", "integer");
+dashboard.addSeriesToChart("User VPN", "connections", "user vpn connections", 1080);
 
 /*
 text example
