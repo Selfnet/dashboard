@@ -123,14 +123,14 @@ Dashboard.prototype.getChartByName = function(name) {
 Dashboard.prototype.getTargetsByDatasetName = function(name) {
     return this.targets[name];
 }
-Dashboard.prototype.createChart = function(container, title, ylabel, datatype) {
+Dashboard.prototype.createChart = function(container, title, ylabel, flags) {
     if (typeof(container) == "string") {
         container = document.getElementById(container);
     }
     var settings = {
         chart: {
             renderTo: container,
-            type: 'areaspline',
+            type: "line",
             zoomType: "x",
             marginRight: 10
         },
@@ -144,8 +144,15 @@ Dashboard.prototype.createChart = function(container, title, ylabel, datatype) {
         },
         series: []
     };
-    if (datatype == "integer") {
-        settings.yAxis.allowDecimals = false;
+    var flag;
+    for (var i = 0; i < flags.length; i++) {
+        flag = flags[i];
+        if (flag == "integer") {
+            settings.yAxis.allowDecimals = false;
+        }
+        else if (flag == "zero") {
+            settings.yAxis.min = 0;
+        }
     }
 
     var chart = new Highcharts.Chart(settings);

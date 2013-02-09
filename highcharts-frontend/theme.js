@@ -49,7 +49,6 @@ Highcharts.theme = {
             width: 1,
             color: '#808080'
         }],
-        min: 0,
         alternateGridColor: null,
         minorTickInterval: null,
         gridLineColor: 'rgba(255, 255, 255, .1)',
