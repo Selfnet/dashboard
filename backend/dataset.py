@@ -178,11 +178,11 @@ class SimpleHTTP(Dataset):
             return i
         except ValueError:
             print("ERROR: cannot convert HTTP response to integer")
-            print("       HTTP response: " + str(output))
+            print("       URL: " + str(self.url))
             return 0
         except Exception, e:
             print("ERROR: " + str(e))
-            print("       HTTP response: " + str(output))
+            print("       URL: " + str(self.url))
             return 0
 
     def update(self):
