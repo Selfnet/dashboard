@@ -1,13 +1,6 @@
 from os import popen
-from config import config
 from urllib import urlopen
 
-
-def rate(value, interval):
-    """
-    returns [unit]/sec as an integer
-    """
-    return int(round(float(value)/interval));
 
 
 class Dataset(object):
@@ -21,58 +14,41 @@ class Dataset(object):
     The method called to fetch a new value is update() which should pass new
     data to the add()-method.
     Parameters needed:
-        cumulative:
+        counterToRate:
             Set this to True if you add data from a counter and need the rate.
         unit:
             Unit of the values. Has no influence on how data is processed.
         factor:
             Multiply each added value with factor (i.e., 8 for bytes -> bits).
     """
-    def __init__(self, cumulative=False, unit="", factor=1):
+    def __init__(self, length, unit=""):
         self.history = []
-        self.lastvalue = 0
-        self.cumulative = cumulative
         self.unit = unit
-        self.factor = factor
-        self.interval = config["interval"]
-        self.maxvalues = config["maxvalues"]
+        self.length = length
 
     def add(self, data):
         """
-        Use this method to add data to the dataset. Handling of cumulative
+        Use this method to add data to the dataset. Handling of counterToRate
         values and multiplying the factor will be done here.
-        Returns the value as it was added (the rate for cumulative datasets).
+        Returns the value as it was added (the rate for counterToRate datasets).
         """
-        try:
-            data = data * self.factor
-        except TypeError:
-            data = 0
-        if self.cumulative:
-            if self.lastvalue == 0:
-                self.lastvalue = data
-                return 0
-            if data < self.lastvalue:
-                # counter overflow
-                bits = len(bin(self.lastvalue)) -2
-                diff = 2**bits - self.lastvalue
-                value = rate(data + diff, self.interval)
-            else:
-                value = rate(data - self.lastvalue, self.interval)
-        else:
-            value = data
-
-        if self.maxvalues:
-            self.history.append(value)
-            if len(self.history) > (self.maxvalues):
-                self.history.pop(0)
-        self.lastvalue = data
-        return value
+        self.history.append(data)
+        if len(self.history) > (self.length):
+            self.history.pop(0)
+        return data
 
     def values(self):
         """
         returns a list of all stored values
         """
         return self.history
+
+    def get(self, i=-1):
+        """
+        returns an item from stored values
+        default: last item in list
+        """
+        return self.history[i]
 
     def getdict(self):
         """
@@ -101,8 +77,8 @@ class SimpleSNMP(Dataset):
     (separated by space) of the response.
     Subclasses Dataset, to inherit basic data storage behaviour.
     """
-    def __init__(self, host, oid, cumulative=False, unit="", factor=1):
-        super(SimpleSNMP, self).__init__(cumulative=cumulative, unit=unit, factor=factor)
+    def __init__(self, host, oid, length, unit="", factor=1):
+        super(SimpleSNMP, self).__init__(length, unit=unit)
         self.host = host
         self.oid = oid
 
@@ -136,27 +112,6 @@ class SimpleSNMP(Dataset):
         return latest
 
 
-class MultiSNMP(Dataset):
-    """
-    get aggregated data from multiple SNMP-targets
-
-    Builds a list of SimpleSNMP-objects that gather the data from every target.
-    It's also a Dataset-object by itself, so it inherits methods like getdict().
-    """
-    def __init__(self, targets={}, unit="", factor=1):
-        super(MultiSNMP, self).__init__(cumulative=False, unit=unit)
-        self.targets = []
-        for t in targets:
-            s = SimpleSNMP(host=t["host"], oid=t["oid"], cumulative=t["cumulative"], factor=t["factor"])
-            s.maxvalues = 0
-            self.targets.append(s)
-    
-    def update(self):
-        total = 0
-        for t in self.targets:
-            total += t.update()
-        self.add(total)
-
 
 class SimpleHTTP(Dataset):
     """
@@ -165,8 +120,8 @@ class SimpleHTTP(Dataset):
     Uses urllib.urlopen to retrieve the object. The downloaded object should
     contain only the value and whitespaces.
     """
-    def __init__(self, url, cumulative=False, unit="", factor=1):
-        super(SimpleHTTP, self).__init__(cumulative=cumulative, unit=unit, factor=factor)
+    def __init__(self, url, length, unit="", factor=1):
+        super(SimpleHTTP, self).__init__(length, unit=unit)
         self.url = url
 
     def gethttp(self):
@@ -189,4 +144,52 @@ class SimpleHTTP(Dataset):
         value = self.gethttp()
         latest = self.add(value)
         return latest
-        
+
+
+class OctetsToBps(Dataset):
+    """
+    Encapsulate another dataset, poll it's values (transmitted octets) and convert them to Bps
+    """
+    def __init__(self, dataset, length, interval, unit="bits per second"):
+        super(OctetsToBps, self).__init__(length=length, unit=unit)
+        self.dataset = dataset
+        self.interval = interval
+
+    def update(self):
+        try:
+            latest = self.dataset.get(-1)
+            secondlatest = self.dataset.get(-2)
+        except IndexError:
+            # happens after program start
+            self.add(0)
+            return 0
+
+        # overflow check/correction
+        if latest < secondlatest:
+            # TODO implement counter size detection on SNMP and ask dataset for the number of bits
+            bits = len(bin(secondlatest)) -2
+            diff = 2**bits - secondlatest
+            octetsdiff = latest + diff
+        else:
+            octetsdiff = latest - secondlatest
+
+        bps = int(round(float(octetsdiff*8)/self.interval))
+        self.add(bps)
+        return bps
+
+
+class Add(Dataset):
+    """
+    Collect values from multiple datasets and add them
+    """
+    def __init__(self, sets, length, unit=""):
+        super(Add, self).__init__(length=length, unit=unit)
+        self.sets = sets
+
+    def update(self):
+        total = 0
+        for s in self.sets:
+            total += s.get()
+        self.add(total)
+        return total
+
