@@ -241,7 +241,7 @@ routes_stuwost1_v6 = SimpleSNMP(
     unit="routes"
 )
 poll.append(routes_stuwost1_v6)
-publish["stuwost1 received routes ipv6"] = routes_stuwost1_v4
+publish["stuwost1 received routes ipv6"] = routes_stuwost1_v6
 
 routes_stuwost2_v4 = SimpleSNMP(
     host="stuwost2",
@@ -250,7 +250,7 @@ routes_stuwost2_v4 = SimpleSNMP(
     unit="routes"
 )
 poll.append(routes_stuwost2_v4)
-publish["stuwost2 received routes ipv4"] = routes_stuwost1_v4
+publish["stuwost2 received routes ipv4"] = routes_stuwost2_v4
 
 routes_stuwost2_v6 = SimpleSNMP(
     host="stuwost2",
@@ -259,7 +259,7 @@ routes_stuwost2_v6 = SimpleSNMP(
     unit="routes"
 )
 poll.append(routes_stuwost2_v6)
-publish["stuwost2 received routes ipv6"] = routes_stuwost1_v4
+publish["stuwost2 received routes ipv6"] = routes_stuwost2_v6
 
 
 
