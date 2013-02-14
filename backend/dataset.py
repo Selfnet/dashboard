@@ -193,3 +193,17 @@ class Add(Dataset):
         self.add(total)
         return total
 
+class Divide(Dataset):
+    """
+    Collect values and divide by fixed value
+    """
+    def __init__(self, dataset, divisor, length, unit=""):
+        super(Divide, self).__init__(length=length, unit=unit)
+        self.dataset = dataset
+        self.divisor = divisor
+
+    def update(self):
+        val = float(self.dataset.get()) / self.divisor
+        self.add(val)
+        return val
+

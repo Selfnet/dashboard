@@ -369,4 +369,30 @@ publish["belwue uplink in"]  = rate_from_belwue
 publish["belwue uplink out"] = rate_to_belwue
 
 
+# USV
+usv1_current = SimpleSNMP(
+    host="usv1.mgmt.selfnet.de",
+    oid="iso.3.6.1.4.1.318.1.1.1.4.3.4.0",
+    length=1,
+    unit="deciampere"
+)
+
+usv2_current = SimpleSNMP(
+    host="usv2.mgmt.selfnet.de",
+    oid="iso.3.6.1.4.1.318.1.1.1.4.3.4.0",
+    length=1,
+    unit="deciampere"
+)
+
+poll.append(usv1_current)
+poll.append(usv2_current)
+
+usv1_current_formatted = Divide(usv1_current, 10, length=length, unit="ampere")
+usv2_current_formatted = Divide(usv2_current, 10, length=length, unit="ampere")
+
+poll.append(usv1_current_formatted)
+poll.append(usv2_current_formatted)
+
+publish["usv1 current"] = usv1_current_formatted
+publish["usv2 current"] = usv2_current_formatted
 
