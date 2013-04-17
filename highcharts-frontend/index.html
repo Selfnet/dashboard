@@ -21,15 +21,13 @@ jQuery.noConflict();
     <br/>
 -->
     <div class="chart" id="internet"></div>
-    <div class="chart" id="selfnet"></div>
-    <div class="chart" id="selfnet6"></div>
-    <div class="chart" id="wh-netz"></div>
+    <div class="chart" id="rt"></div>
+    <div class="chart" id="wlan"></div>
+    <div class="chart" id="uservpn"></div>
     <div class="chart" id="routes-ipv4"></div>
     <div class="chart" id="routes-ipv6"></div>
     <div class="chart" id="usvcurrent"></div>
-    <div class="chart" id="wlan"></div>
-    <div class="chart" id="rt"></div>
-    <div class="chart" id="uservpn"></div>
+    <div class="chart" id="racktemp"></div>
 </div>
 
 
@@ -47,18 +45,6 @@ dashboard = new Dashboard();
 dashboard.createChart("internet", "Internet Uplink", "bits per second", ["integer", "zero"]);
 dashboard.addSeriesToChart("Internet Uplink", "Downstream", "belwue uplink in", 360);
 dashboard.addSeriesToChart("Internet Uplink", "Upstream",   "belwue uplink out", 360);
-
-dashboard.createChart("selfnet", "Selfnet", "bits per second", ["integer", "zero"]);
-dashboard.addSeriesToChart("Selfnet", "Downstream", "selfnet uplink in", 360);
-dashboard.addSeriesToChart("Selfnet", "Upstream",   "selfnet uplink out", 360);
-
-dashboard.createChart("selfnet6", "Selfnet (IPv6 only)", "bits per second", ["integer", "zero"]);
-dashboard.addSeriesToChart("Selfnet (IPv6 only)", "Downstream", "selfnet uplink ipv6 in", 360);
-dashboard.addSeriesToChart("Selfnet (IPv6 only)", "Upstream",   "selfnet uplink ipv6 out", 360);
-
-dashboard.createChart("wh-netz", "WH-Netz", "bits per second", ["integer", "zero"]);
-dashboard.addSeriesToChart("WH-Netz", "Downstream", "wh-netz uplink in", 360);
-dashboard.addSeriesToChart("WH-Netz", "Upstream",   "wh-netz uplink out", 360);
 
 dashboard.createChart("routes-ipv4", "Received IPv4 Routes", "routes", ["integer"]);
 dashboard.addSeriesToChart("Received IPv4 Routes", "StuWoSt1", "stuwost1 received routes ipv4", 1080);
@@ -80,6 +66,10 @@ dashboard.addSeriesToChart("User VPN", "connections", "user vpn connections", 10
 dashboard.createChart("usvcurrent", "USV Current", "Ampere", ["integer"]);
 dashboard.addSeriesToChart("USV Current", "USV 1", "usv1 current", 1080);
 dashboard.addSeriesToChart("USV Current", "USV 2", "usv2 current", 1080);
+
+dashboard.createChart("racktemp", "Temperatures", "°C", ["integer"]);
+dashboard.addSeriesToChart("Temperatures", "rack 1", "rack 1 temperature", 1080);
+dashboard.addSeriesToChart("Temperatures", "rack 2", "rack 2 temperature", 1080);
 
 
 
