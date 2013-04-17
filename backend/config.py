@@ -400,7 +400,7 @@ publish["usv2 current"] = usv2_current_formatted
 # TEMPERATURE
 rack1_temp = SimpleSNMP(
     host="usv1.mgmt.selfnet.de",
-    oid="1.3.6.1.4.1.318.1.1.1.2.2.2.0",
+    oid="1.3.6.1.4.1.318.1.1.10.2.3.2.1.4.1",
     length=length,
     unit="degrees celsius"
 )
