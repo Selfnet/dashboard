@@ -142,21 +142,21 @@ poll.append(belwue_stuwost2_v6only)
 
 # traffic LANs <-> border routers
 
-wh_stuwost1 = SimpleSNMP(
-    host="stuwost1",
-    oid=".1.3.6.1.2.1.31.1.1.1.6.571",
-    length=2,
-    unit="octets"
-)
-poll.append(wh_stuwost1)
-
-stuwost1_wh = SimpleSNMP(
-    host="stuwost1",
-    oid=".1.3.6.1.2.1.31.1.1.1.10.571",
-    length=2,
-    unit="octets"
-)
-poll.append(stuwost1_wh)
+#wh_stuwost1 = SimpleSNMP(
+#    host="stuwost1",
+#    oid=".1.3.6.1.2.1.31.1.1.1.6.571",
+#    length=2,
+#    unit="octets"
+#)
+#poll.append(wh_stuwost1)
+#
+#stuwost1_wh = SimpleSNMP(
+#    host="stuwost1",
+#    oid=".1.3.6.1.2.1.31.1.1.1.10.571",
+#    length=2,
+#    unit="octets"
+#)
+#poll.append(stuwost1_wh)
 
 selfnet_stuwost1 = SimpleSNMP(
     host="stuwost1",
@@ -304,14 +304,14 @@ publish["stuwost2 uplink ipv6 in"]  = rate_belwue_stuwost2_v6only
 
 
 # WH-Netz <-> border router
-rate_wh_stuwost1 = OctetsToBps(wh_stuwost1, length=length, interval=interval)
-rate_stuwost1_wh = OctetsToBps(stuwost1_wh, length=length, interval=interval)
-
-poll.append(rate_wh_stuwost1)
-poll.append(rate_stuwost1_wh)
-
-publish["wh-netz uplink out"] = rate_wh_stuwost1
-publish["wh-netz uplink in"]  = rate_stuwost1_wh
+#rate_wh_stuwost1 = OctetsToBps(wh_stuwost1, length=length, interval=interval)
+#rate_stuwost1_wh = OctetsToBps(stuwost1_wh, length=length, interval=interval)
+#
+#poll.append(rate_wh_stuwost1)
+#poll.append(rate_stuwost1_wh)
+#
+#publish["wh-netz uplink out"] = rate_wh_stuwost1
+#publish["wh-netz uplink in"]  = rate_stuwost1_wh
 
 
 # Selfnet <-> border routers
@@ -395,4 +395,24 @@ poll.append(usv2_current_formatted)
 
 publish["usv1 current"] = usv1_current_formatted
 publish["usv2 current"] = usv2_current_formatted
+
+
+# TEMPERATURE
+rack1_temp = SimpleSNMP(
+    host="usv1.mgmt.selfnet.de",
+    oid="1.3.6.1.4.1.318.1.1.1.2.2.2.0",
+    length=length,
+    unit="degrees celsius"
+)
+poll.append(rack1_temp)
+publish["rack 1 temperature"] = rack1_temp
+
+rack2_temp = SimpleSNMP(
+    host="usv2.mgmt.selfnet.de",
+    oid="1.3.6.1.4.1.318.1.1.1.2.2.2.0",
+    length=length,
+    unit="degrees celsius"
+)
+poll.append(rack2_temp)
+publish["rack 2 temperature"] = rack2_temp
 
