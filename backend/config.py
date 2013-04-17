@@ -409,7 +409,7 @@ publish["rack 1 temperature"] = rack1_temp
 
 rack2_temp = SimpleSNMP(
     host="usv2.mgmt.selfnet.de",
-    oid="1.3.6.1.4.1.318.1.1.1.2.2.2.0",
+    oid="1.3.6.1.4.1.318.1.1.10.2.3.2.1.4.1",
     length=length,
     unit="degrees celsius"
 )
