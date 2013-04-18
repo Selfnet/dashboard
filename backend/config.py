@@ -245,7 +245,7 @@ publish["stuwost1 received routes ipv6"] = routes_stuwost1_v6
 
 routes_stuwost2_v4 = SimpleSNMP(
     host="stuwost2",
-    oid="iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.10.1.1",
+    oid="iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.0.1.1",
     length=length,
     unit="routes"
 )
@@ -254,7 +254,7 @@ publish["stuwost2 received routes ipv4"] = routes_stuwost2_v4
 
 routes_stuwost2_v6 = SimpleSNMP(
     host="stuwost2",
-    oid="iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.11.2.1",
+    oid="iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.1.2.1",
     length=length,
     unit="routes"
 )
