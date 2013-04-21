@@ -47,7 +47,7 @@ publish = {}
 # misc (wireless lan, rt tickets, ...)
 
 nocWlan = SimpleSNMP(
-    host="10.43.224.1",
+    host="10.0.2.1",
     oid="iso.3.6.1.4.1.14525.4.5.1.1.2.1.16.12.109.103.48.50.49.49.53.49.51.52.49.53",
     length=length,
     unit="clients online"
