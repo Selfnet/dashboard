@@ -67,7 +67,7 @@ dashboard.createChart("usvcurrent", "USV Current", "Ampere", ["integer"]);
 dashboard.addSeriesToChart("USV Current", "USV 1", "usv1 current", 1080);
 dashboard.addSeriesToChart("USV Current", "USV 2", "usv2 current", 1080);
 
-dashboard.createChart("racktemp", "Temperatures", "°C", ["integer"]);
+dashboard.createChart("racktemp", "Temperatures", "degree celsius", ["integer", "zero"])
 dashboard.addSeriesToChart("Temperatures", "rack 1", "rack 1 temperature", 1080);
 dashboard.addSeriesToChart("Temperatures", "rack 2", "rack 2 temperature", 1080);
 
