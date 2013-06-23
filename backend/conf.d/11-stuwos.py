@@ -3,7 +3,7 @@ from dash.sources import SNMP
 # BORDER ROUTER TRAFFIC
 conf.add(SNMP(
     host="stuwost1",
-    mibs={
+    oids={
         "octets stuwost1 to belwue": ".1.3.6.1.2.1.31.1.1.1.10.570",
         "octets stuwost1 to belwue ipv6": ".1.3.6.1.4.1.2636.3.11.1.3.1.1.2.570",
         "octets belwue to stuwost1": ".1.3.6.1.2.1.31.1.1.1.6.570",

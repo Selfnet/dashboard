@@ -8,9 +8,10 @@ class SNMP(Source):
 
     original_source = True
 
-    def __init__(self, host, mibs, port=None, version=None, community=None):
+    def __init__(self, host, oids, port=None, version=None, community=None):
         self.host = host
-        self.mibs = mibs
+        self.names = oids.keys()
+        self.oids = netsnmp.VarList(*[netsnmp.Varbind(oid) for oid in oids.values()])
         self.port = port or 161
         self.version = version or 1
         self.community = community or "public"
@@ -21,6 +22,8 @@ class SNMP(Source):
             self.port = defaults["snmp port"]
         if "snmp version" in defaults:
             self.version = defaults["snmp version"]
+            if type(self.version) != int:
+                print("WARNING: SNMP protocol version is not an integer value")
         if "snmp community" in defaults:
             self.community = defaults["snmp community"]
 
@@ -33,16 +36,14 @@ class SNMP(Source):
 
     def _run(self):
         session = netsnmp.Session(DestHost=self.host,
-                    Version=self.version,
-                    RemotePort=self.port,
-                    Timeout=400000,
-                    Retries=5,
-                    Community=self.community)
-
-        keys = list(self.mibs) # dataset name
-        values = session.get(self.mibs.values()) # oid --> value
-        for i in range(len(keys)):
-            self.data.add(keys[i], values[i])
+                Version=self.version,
+                RemotePort=self.port,
+                Timeout=400000,
+                Retries=5,
+        Community=self.community)
+        values = session.get(self.oids) # oid --> value
+        for i in range(len(self.names)):
+            self.data.add(self.names[i], values[i])
 
 
 
