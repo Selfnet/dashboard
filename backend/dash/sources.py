@@ -6,7 +6,7 @@ from data import Source
 
 class SNMP(Source):
 
-    original_source = True
+    dependencies = []
 
     def __init__(self, host, oids, port=None, version=None, community=None):
         self.host = host
@@ -18,6 +18,8 @@ class SNMP(Source):
 
     def configure(self, data, defaults, interval):
         self.data = data
+        for name in self.names:
+            self.data.add_set(name)
         if "snmp port" in defaults:
             self.port = defaults["snmp port"]
         if "snmp version" in defaults:
@@ -35,26 +37,30 @@ class SNMP(Source):
             print(e)
 
     def _run(self):
-        session = netsnmp.Session(DestHost=self.host,
+        try:
+            session = netsnmp.Session(DestHost=self.host,
                 Version=self.version,
                 RemotePort=self.port,
                 Timeout=400000,
                 Retries=5,
-        Community=self.community)
-        values = session.get(self.oids) # oid --> value
-        for i in range(len(self.names)):
-            self.data.add(self.names[i], values[i])
+                Community=self.community)
+        except Exception as e:
+            print(type(e).__name__ + " in SNMP session \"" + self.host + "\"")
+            print(e)
+            raise
+        try:
+            values = session.get(self.oids) # oid --> value
+            for i in range(len(self.names)):
+                self.data.add(self.names[i], values[i])
+        except Exception as e:
+            print(type(e).__name__ + " while fetching SNMP data from \"" + self.host + "\"")
+            print(e)
+            raise
 
 
 
 class Timestamp(Source):
-
-    original_source = True
-
     """ great for debugging """
-    def __init__(self, name):
-        self.name = name
-
     def run(self):
         self.data.add(self.name, int(time()))
 
@@ -63,13 +69,11 @@ class Timestamp(Source):
 
 class HTTP(Source):
 
-    original_source = True
+    dependencies = []
 
     def __init__(self, name, url):
         super(HTTP, self).__init__(data)
         self.name = name
-        self.url = url
-
     def run(self):
         try:
             self._run()

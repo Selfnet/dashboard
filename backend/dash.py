@@ -5,6 +5,7 @@ import sys
 import time
 from multiprocessing.pool import ThreadPool
 from threading import Timer
+import memcache
 
 from dash.config import Config
 
@@ -24,22 +25,32 @@ def update_loop():
     timer = Timer(conf.interval, update_loop).start()
 
     # fetch raw data from all the sources
-    pool.map(lambda x: x(), fetch_jobs)
+    t1 = time.time()
+    pool.map(lambda x: x(), independent_jobs)
+    t2 = time.time()
+    print("fetched updates in {0:.2f}s".format(t2-t1))
 
-    # process datA
-    pool.map(lambda x: x(), meta_jobs)
+    # process data
+    t1 = time.time()
+    for job in meta_jobs:
+        job()
+    t2 = time.time()
+    print("processed metadata in {0:.2f}s".format(t2-t1))
 
+    pool.map(lambda x: x(), outputs)
 
+    print(repr(conf.data.datasets))
 
 
 # load config
 conf = Config()
 execute_files("conf.d")
-fetch_jobs = conf.get_fetch_jobs()
-meta_jobs = conf.get_meta_jobs()
+independent_jobs = conf.get_independent_callables()
+meta_jobs = conf.get_meta_callables()
+outputs = conf.get_output_callables()
 
 # execute jobs
-pool = ThreadPool(processes=4)
+pool = ThreadPool(processes=8)
 
 update_loop()
 

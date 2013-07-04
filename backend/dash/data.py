@@ -2,8 +2,14 @@ from threading import Lock
 
 
 class Source(object):
+    dependencies = []
+    def __init__(self, name):
+        self.name = name
+
     def configure(self, data, defaults, interval):
         self.data = data
+        self.data.add_set(self.name)
+        
 
 
 class Data():
@@ -16,10 +22,18 @@ class Data():
         try:
             return self.datasets[name]
         except KeyError:
-            self.lock.acquire()
-            self.datasets[name] = []
-            self.lock.release()
+            self.add_set(name)
             return self.datasets[name]
+
+    def add_set(self, name):
+        self.lock.acquire()
+        self.datasets[name] = []
+        self.lock.release()
+
+    def has_set(self, name):
+        if name in self.datasets:
+            return True
+        return False
 
     def add(self, name, value):
         dataset = self.get_dataset(name)
