@@ -1,4 +1,5 @@
 import netsnmp
+from urllib import urlopen
 from time import time
 
 from data import Source
@@ -59,6 +60,59 @@ class SNMP(Source):
 
 
 
+class SNMPWalkSum(Source):
+    """ do snmpwalk and add up all the results """
+
+    dependencies = []
+
+    def __init__(self, name, host, oid, port=None, version=None, community=None):
+        self.name = name
+        self.host = host
+        self.oid = oid
+        self.port = port or 161
+        self.version = version or 1
+        self.community = community or "public"
+
+    def configure(self, data, defaults, interval):
+        self.data = data
+        self.data.add_set(self.name)
+        if "snmp port" in defaults:
+            self.port = defaults["snmp port"]
+        if "snmp version" in defaults:
+            self.version = defaults["snmp version"]
+            if type(self.version) != int:
+                print("WARNING: SNMP protocol version is not an integer value")
+        if "snmp community" in defaults:
+            self.community = defaults["snmp community"]
+
+    def run(self):
+        try:
+            self._run()
+        except Exception as e:
+            print(type(e).__name__ + " in SNMP data source \"" + self.host + "\"")
+            print(e)
+
+    def _run(self):
+        var = netsnmp.VarList(netsnmp.Varbind(self.oid))
+        try:
+            session = netsnmp.Session(DestHost=self.host,
+                Version=self.version,
+                RemotePort=self.port,
+                Timeout=400000,
+                Retries=5,
+                Community=self.community)
+        except Exception as e:
+            print(type(e).__name__ + " in SNMP session \"" + self.host + "\"")
+            print(e)
+            raise
+        values = session.walk(var)
+        total = 0
+        for value in values:
+            total += int(value)
+        self.data.add(self.name, total)
+        
+
+
 class Timestamp(Source):
     """ great for debugging """
     def run(self):
@@ -72,8 +126,9 @@ class HTTP(Source):
     dependencies = []
 
     def __init__(self, name, url):
-        super(HTTP, self).__init__(data)
         self.name = name
+        self.url = url
+
     def run(self):
         try:
             self._run()

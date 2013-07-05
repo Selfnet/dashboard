@@ -27,19 +27,14 @@ def update_loop():
     # fetch raw data from all the sources
     t1 = time.time()
     pool.map(lambda x: x(), independent_jobs)
-    t2 = time.time()
-    print("fetched updates in {0:.2f}s".format(t2-t1))
 
     # process data
-    t1 = time.time()
     for job in meta_jobs:
         job()
     t2 = time.time()
-    print("processed metadata in {0:.2f}s".format(t2-t1))
 
     pool.map(lambda x: x(), outputs)
-
-    print(repr(conf.data.datasets))
+    print("update done, {0:.2f}s".format(t2-t1))
 
 
 # load config

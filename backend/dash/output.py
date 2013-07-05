@@ -16,8 +16,8 @@ class Memcache(object):
         history = {}
         for name in datasets:
             try:
-                latest[name] = datasets[name][-1]
-                history[name] = {"unit": "loltest", "values": datasets[name]}
+                latest[name] = {"value": datasets[name][-1]}
+                history[name] = {"values": datasets[name]}
             except IndexError:
                 pass
         self.mc.set_multi({"meta": self.meta, "latest": latest, "history": history})

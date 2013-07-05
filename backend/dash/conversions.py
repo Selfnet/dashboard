@@ -1,6 +1,13 @@
 from data import Source
 
 
+def latest_value(l):
+    a = None
+    i = 1
+    while a == None:
+        a = l[-i]
+        i += 1
+    return a
 
 def two_latest_values(l):
     # find the two most recent values != None
@@ -54,4 +61,21 @@ class OctetsToBitrate(Source):
             total += (b - a)
         bitrate = (total * 8) / self.interval
         self.data.add(self.name, bitrate)
+
+
+class SimpleConversion(Source):
+    def __init__(self, name, source, func):
+        self.name = name
+        self.source = source
+        self.dependencies = [source]
+        self.func = func
+
+    def run(self):
+        dataset = self.data.get_dataset(self.source)
+        try:
+            value = latest_value(dataset)
+        except IndexError:
+            return
+        new = self.func(value)
+        self.data.add(self.name, new)
 
