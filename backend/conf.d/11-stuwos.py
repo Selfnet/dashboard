@@ -1,4 +1,5 @@
 from dash.sources import SNMP
+from dash.conversions import SimpleConversion
 from os import popen
 
 # BORDER ROUTER TRAFFIC
@@ -17,8 +18,8 @@ conf.add(SNMP(
         "octets stuwost1 to belwue ipv6": "iso.3.6.1.4.1.2636.3.11.1.3.1.1.2." + stuwost1uplink,
         "octets belwue to stuwost1": "iso.3.6.1.2.1.31.1.1.1.6." + stuwost1uplink,
         "octets belwue to stuwost1 ipv6": "iso.3.6.1.4.1.2636.3.11.1.3.1.1.1." + stuwost1uplink,
-        "routes ipv4 stuwost1": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.0.1.1",
-        "routes ipv6 stuwost1": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.1.2.1"
+        "routes ipv4 stuwost1 raw": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.0.1.1",
+        "routes ipv6 stuwost1 raw": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.1.2.1"
     }
 ))
 
@@ -36,16 +37,14 @@ conf.add(SNMP(
         "octets stuwost2 to belwue ipv6": "iso.3.6.1.4.1.2636.3.11.1.3.1.1.2." + stuwost2uplink,
         "octets belwue to stuwost2": "iso.3.6.1.2.1.31.1.1.1.6." + stuwost2uplink,
         "octets belwue to stuwost2 ipv6": "iso.3.6.1.4.1.2636.3.11.1.3.1.1.1." + stuwost2uplink,
-        "routes ipv4 stuwost2": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.0.1.1",
-        "routes ipv6 stuwost2": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.1.2.1"
+        "routes ipv4 stuwost2 raw": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.0.1.1",
+        "routes ipv6 stuwost2 raw": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.1.2.1"
     }
 ))
 
-print({
-        "octets stuwost2 to belwue": "iso.3.6.1.2.1.31.1.1.1.10." + stuwost2uplink,
-        "octets stuwost2 to belwue ipv6": "iso.3.6.1.4.1.2636.3.11.1.3.1.1.2." + stuwost2uplink,
-        "octets belwue to stuwost2": "iso.3.6.1.2.1.31.1.1.1.6." + stuwost2uplink,
-        "octets belwue to stuwost2 ipv6": "iso.3.6.1.4.1.2636.3.11.1.3.1.1.1." + stuwost2uplink,
-        "routes ipv4 stuwost2": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.0.1.1",
-        "routes ipv6 stuwost2": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.1.2.1"
-    })
+# convert routes to integer
+conf.add(SimpleConversion(name="routes ipv4 stuwost1", source="routes ipv4 stuwost1 raw", func=int))
+conf.add(SimpleConversion(name="routes ipv6 stuwost1", source="routes ipv6 stuwost1 raw", func=int))
+conf.add(SimpleConversion(name="routes ipv4 stuwost2", source="routes ipv4 stuwost2 raw", func=int))
+conf.add(SimpleConversion(name="routes ipv6 stuwost2", source="routes ipv6 stuwost2 raw", func=int))
+

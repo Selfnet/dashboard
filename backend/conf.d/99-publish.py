@@ -9,5 +9,12 @@ conf.publish_list([
     "usv1 rack temperature",
     "usv2 rack temperature",
     "usv3 rack temperature",
+    "routes ipv4 stuwost1",
+    "routes ipv4 stuwost2",
+    "routes ipv6 stuwost1",
+    "routes ipv6 stuwost2",
+    "open rt tickets",
+    "noc wlan clients",
+    "user vpn clients"
 ])
 
