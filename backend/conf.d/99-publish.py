@@ -13,7 +13,8 @@ conf.publish_list([
     "routes ipv4 stuwost2",
     "routes ipv6 stuwost1",
     "routes ipv6 stuwost2",
-    "open rt tickets",
+    "open selfnet rt tickets",
+    "open wh-netz rt tickets",
     "noc wlan clients",
     "user vpn clients"
 ])
