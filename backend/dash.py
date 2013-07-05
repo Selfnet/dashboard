@@ -1,32 +1,51 @@
 #!/usr/bin/python
 
-import json
-import time
+import os
 import sys
+import time
+from multiprocessing.pool import ThreadPool
+from threading import Timer
 import memcache
 
-import config
+from dash.config import Config
 
 
-if __name__ == "__main__":
+def execute_files(folder):
+    items = os.listdir(folder)
+    items.sort()
+    for item in items:
+        path = os.path.join(folder, item)
+        if os.path.isfile(path):
+            if path.endswith(".py"):
+                exec(compile(open(path).read(), path, 'exec'), globals(), locals())
+        else:
+            execute_files(path)
 
-    meta = {}
-    meta["started"] = time.time()
-    meta["interval"] = config.interval
+def update_loop():
+    timer = Timer(conf.interval, update_loop).start()
 
-    data = {}
-    mc = memcache.Client(config.settings["memcache_servers"], debug=0)
+    # fetch raw data from all the sources
+    t1 = time.time()
+    pool.map(lambda x: x(), independent_jobs)
 
-    while True:
-        for d in config.poll:
-            d.update()
-        meta["refresh"] = int(time.time())
-        history = {}
-        latest = {}
-        for key in config.publish:
-            dataset = config.publish[key]
-            history[key] = dataset.getdict()
-            latest[key] = {"value": dataset.getlatest()}
-        
-        mc.set_multi({"meta": meta, "latest": latest, "history": history})
-        time.sleep(meta["interval"])
+    # process data
+    for job in meta_jobs:
+        job()
+    t2 = time.time()
+
+    pool.map(lambda x: x(), outputs)
+    print("update done, {0:.2f}s".format(t2-t1))
+
+
+# load config
+conf = Config()
+execute_files("conf.d")
+independent_jobs = conf.get_independent_callables()
+meta_jobs = conf.get_meta_callables()
+outputs = conf.get_output_callables()
+
+# execute jobs
+pool = ThreadPool(processes=8)
+
+update_loop()
+

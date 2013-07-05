@@ -3,11 +3,11 @@
 
 <title>Dashboard</title>
 
-<script type="text/javascript" src="jquery.min.js"></script>
+<script type="text/javascript" src="lib/jquery.min.js"></script>
 <script type="text/javascript">
 jQuery.noConflict();
 </script>
-<script type="text/javascript" src="highcharts.js"></script>
+<script type="text/javascript" src="lib/highcharts.js"></script>
 <script type="text/javascript" src="theme.js"></script>
 <link rel="stylesheet" type="text/css" href="style.css">
 </head>
@@ -43,34 +43,35 @@ Highcharts.setOptions({
 dashboard = new Dashboard();
 
 dashboard.createChart("internet", "Internet Uplink", "bits per second", ["integer", "zero"]);
-dashboard.addSeriesToChart("Internet Uplink", "Downstream", "belwue uplink in", 360);
-dashboard.addSeriesToChart("Internet Uplink", "Upstream",   "belwue uplink out", 360);
+dashboard.addSeriesToChart("Internet Uplink", "Downstream", "bps from belwue", 360);
+dashboard.addSeriesToChart("Internet Uplink", "Upstream",   "bps to belwue", 360);
 
 dashboard.createChart("routes-ipv4", "Received IPv4 Routes", "routes", ["integer"]);
-dashboard.addSeriesToChart("Received IPv4 Routes", "StuWoSt1", "stuwost1 received routes ipv4", 1080);
-dashboard.addSeriesToChart("Received IPv4 Routes", "StuWoSt2", "stuwost2 received routes ipv4", 1080);
+dashboard.addSeriesToChart("Received IPv4 Routes", "stuwost1", "routes ipv4 stuwost1", 1080);
+dashboard.addSeriesToChart("Received IPv4 Routes", "stuwost2", "routes ipv4 stuwost2", 1080);
 
 dashboard.createChart("routes-ipv6", "Received IPv6 Routes", "routes", ["integer"]);
-dashboard.addSeriesToChart("Received IPv6 Routes", "StuWoSt1", "stuwost1 received routes ipv6", 1080);
-dashboard.addSeriesToChart("Received IPv6 Routes", "StuWoSt2", "stuwost2 received routes ipv6", 1080);
+dashboard.addSeriesToChart("Received IPv6 Routes", "stuwost1", "routes ipv6 stuwost1", 1080);
+dashboard.addSeriesToChart("Received IPv6 Routes", "stuwost2", "routes ipv6 stuwost2", 1080);
 
 dashboard.createChart("wlan", "NOC WLAN Clients", "clients", ["integer", "zero"]);
-dashboard.addSeriesToChart("NOC WLAN Clients", "clients online", "NOC WLAN Clients", 1080);
+dashboard.addSeriesToChart("NOC WLAN Clients", "clients online", "noc wlan clients", 1080);
 
 dashboard.createChart("rt", "RT Tickets", "tickets", ["integer", "zero"]);
 dashboard.addSeriesToChart("RT Tickets", "pending tickets", "open rt tickets", 1080);
 
 dashboard.createChart("uservpn", "User VPN", "connections", ["integer", "zero"]);
-dashboard.addSeriesToChart("User VPN", "connections", "user vpn connections", 1080);
+dashboard.addSeriesToChart("User VPN", "connections", "user vpn clients", 1080);
 
-dashboard.createChart("usvcurrent", "USV Current", "Ampere", ["integer"]);
-dashboard.addSeriesToChart("USV Current", "USV 1", "usv1 current", 360);
-dashboard.addSeriesToChart("USV Current", "USV 2", "usv2 current", 360);
+dashboard.createChart("usvcurrent", "USV Current", "Ampere", ["integer", "zero"]);
+dashboard.addSeriesToChart("USV Current", "USV 1", "usv1 current", 1080);
+dashboard.addSeriesToChart("USV Current", "USV 2", "usv2 current", 1080);
+dashboard.addSeriesToChart("USV Current", "USV 3", "usv3 current", 1080);
 
-dashboard.createChart("racktemp", "Temperatures", "degree celsius", ["integer", "zero"])
-dashboard.addSeriesToChart("Temperatures", "rack 1", "rack 1 temperature", 360);
-dashboard.addSeriesToChart("Temperatures", "rack 2", "rack 2 temperature", 360);
-
+dashboard.createChart("racktemp", "Temperatures", "degree celsius", ["integer", "zero"]);
+dashboard.addSeriesToChart("Temperatures", "rack 1", "usv1 rack temperature", 1080);
+dashboard.addSeriesToChart("Temperatures", "rack 2", "usv2 rack temperature", 1080);
+dashboard.addSeriesToChart("Temperatures", "rack 3", "usv3 rack temperature", 1080);
 
 
 /*

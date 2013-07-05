@@ -14,7 +14,7 @@ Additionally the web-frontend dynamically parses the json-formatted datasets and
 * Backend
  * Python
  * python-memcache
- * for SNMP Data: snmpget
+ * for SNMP Data: netsnmp (python bindings)
  * a webserver with python cgi
 * web-frontend
  * highcharts.js
