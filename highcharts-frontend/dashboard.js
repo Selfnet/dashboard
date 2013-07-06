@@ -48,7 +48,8 @@ HtmlTarget.prototype.populate = function(list) {
 
 
 function Dashboard() {
-    this.charts = {};
+    this.chart_by_name = {};
+    this.charts = [];
     this.targets = []; // list of key/value pairs
     this.updateInterval = 10; // default value
 }
@@ -86,8 +87,8 @@ Dashboard.prototype.fetchHistory = function() {
                 target.populate(points);
             }
         }
-        for (var chartname in t.charts) {
-            t.charts[chartname].redraw();
+        for (var i in t.charts) {
+            t.charts[i].redraw();
         }
     });
 }
@@ -104,8 +105,8 @@ Dashboard.prototype.fetchUpdate = function() {
                 target.add(lastrefresh*1000, set.value);
             }
         }
-        for (var chartname in t.charts) {
-            t.charts[chartname].redraw();
+        for (var i in t.charts) {
+            t.charts[i].redraw();
         }
     });
 }
@@ -115,10 +116,11 @@ Dashboard.prototype.scheduleUpdates = function() {
     setInterval(function(){t.fetchUpdate();}, t.updateInterval*1000);
 }
 Dashboard.prototype.addChart = function(chart, title) {
-    this.charts[title] = chart;
+    this.chart_by_name[title] = chart;
+    this.charts.push(chart);
 }
 Dashboard.prototype.getChartByName = function(name) {
-    return this.charts[name];
+    return this.chart_by_name[name];
 }
 Dashboard.prototype.getTargetsByDatasetName = function(name) {
     return this.targets[name];
