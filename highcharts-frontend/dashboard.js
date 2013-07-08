@@ -66,6 +66,7 @@ Dashboard.prototype.fetchHistory = function() {
     jQuery.getJSON('/cgi-bin/history.json.py', function(data) {
         var interval = data.meta.interval;
         t.updateInterval = interval;
+        t.lastrefresh = lastrefresh;
         var lastrefresh = data.meta.refresh;
         for (var name in data.history) {
             for (var tnum in t.targets[name]) {
@@ -97,6 +98,7 @@ Dashboard.prototype.fetchUpdate = function() {
 
     jQuery.getJSON('/cgi-bin/latest.json.py', function(data) {
         var lastrefresh = data.meta.refresh;
+        t.lastrefresh = lastrefresh;
         for (var name in data.latest) {
             for (var tnum in t.targets[name]) {
                 var target = t.targets[name][tnum];
