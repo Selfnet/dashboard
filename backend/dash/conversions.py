@@ -79,3 +79,22 @@ class SimpleConversion(Source):
         new = self.func(value)
         self.data.add(self.name, new)
 
+
+
+
+class Percentage(Source):
+    def __init__(self, name, value, maximum):
+        self.name = name
+        self.value = value
+        self.maximum = maximum
+        self.dependencies = [value]
+
+    def run(self):
+        val_dataset = self.data.get_dataset(self.value)
+        max_dataset = self.data.get_dataset(self.maximum)
+        try:
+            new = 100.0 / latest_value(max_dataset) * latest_value(val_dataset)
+        except IndexError:
+            return
+        self.data.add(self.name, new)
+

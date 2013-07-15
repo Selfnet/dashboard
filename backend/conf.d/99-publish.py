@@ -3,6 +3,10 @@ from dash.output import Memcache
 conf.publish_list([
     "bps to belwue",
     "bps from belwue",
+    "bps to belwue ipv6 only",
+    "bps from belwue ipv6 only",
+    "percentage ipv6 to belwue",
+    "percentage ipv6 from belwue",
     "usv1 current",
     "usv2 current",
     "usv3 current",
