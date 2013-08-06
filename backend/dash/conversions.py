@@ -56,9 +56,16 @@ class OctetsToBitrate(Source):
             # difference between oldest two entries, modulo 16/32/64 (overflows)
             if b < a:
                 # overflow happened
-                # FIXME
-                b = a # no, really. FIXME.
-            total += (b - a)
+                # guess the size of the counter
+                size = len(bin(a) - 2)
+                # round to the next multiple of 8
+                size = (size + 7) / 8 * 8
+                # rest to maxint(size)
+                rest = 2**size - a
+                a = 0
+                total = rest + b
+            else:
+                total += (b - a)
         bitrate = (total * 8) / self.interval
         self.data.add(self.name, bitrate)
 
