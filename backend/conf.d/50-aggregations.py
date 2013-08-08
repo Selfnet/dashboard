@@ -45,3 +45,22 @@ conf.add(Percentage(
     maximum="bps to belwue"
 ))
 
+
+
+conf.add(Sum(
+    name="total octets selfnet to belwue",
+    sources=[
+        "octets stuwost1 to belwue",
+        "octets stuwost2 to belwue"
+    ]
+))
+
+conf.add(Sum(
+    name="total octets belwue to selfnet",
+    sources=[
+        "octets belwue to stuwost1",
+        "octets belwue to stuwost2"
+    ]
+))
+
+

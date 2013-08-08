@@ -1,6 +1,8 @@
 import netsnmp
+from os import popen
 from urllib import urlopen
 from time import time
+import socket
 
 from data import Source
 
@@ -142,3 +144,62 @@ class HTTP(Source):
         f.close()
         self.data.add(self.name, output)
  
+
+
+
+class Subprocess(Source):
+
+    dependencies = []
+
+    def __init__(self, name, cmd, func=None):
+        self.name = name
+        self.cmd = cmd
+        self.func = func
+
+    def run(self):
+        try:
+            self._run()
+        except Exception as e:
+            print(type(e).__name__ + " in HTTP data source \"" + self.cmd + "\"")
+            print(e)
+
+    def _run(self):
+        output = popen(self.cmd).readlines()
+        value = self.func(output) if self.func else output
+        self.data.add(self.name, value)
+
+
+class Munin(Source):
+    """ asks munin nodes for stuff """
+
+    def __init__(self, name, host, cmd, key, port=4949):
+        self.name = name
+        self.host = host
+        self.cmd = cmd
+        self.key = key
+        self.port = port
+
+    def get_value(self, key, output):
+        for line in output.split("\n"):
+            if line.startswith(key + ".value "):
+                return int(line.split(" ")[1])
+
+    def run(self):
+        try:
+            self._run()
+        except Exception as e:
+            print(type(e).__name__ + " in HTTP data source \"" + self.cmd + "\"")
+            print(e)
+
+    def _run(self):
+        s = socket.create_connection((self.host, self.port), 1)
+        s.settimeout(1)
+        s.send(self.cmd)
+        output = ""
+        while True:
+            output += s.recv(2048)
+            if output.endswith("\n.\n"):
+                break
+        value = self.get_value(self.key, output)
+        self.data.add(self.name, value)
+

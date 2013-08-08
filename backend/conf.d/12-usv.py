@@ -1,5 +1,3 @@
-from dash.conversions import SimpleConversion
-
 conf.add(SNMP(
     host="usv1.mgmt.selfnet.de",
     oids={

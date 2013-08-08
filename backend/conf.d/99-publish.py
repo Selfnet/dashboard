@@ -7,6 +7,8 @@ conf.publish_list([
     "bps from belwue ipv6 only",
     "percentage ipv6 to belwue",
     "percentage ipv6 from belwue",
+    "total octets belwue to selfnet",
+    "total octets selfnet to belwue",
     "usv1 current",
     "usv2 current",
     "usv3 current",
@@ -20,6 +22,11 @@ conf.publish_list([
     "open selfnet rt tickets",
     "open wh-netz rt tickets",
     "noc wlan clients",
-    "user vpn clients"
+    "user vpn clients",
+    "selfstreaming clients multicast",
+    "selfstreaming clients unicast",
+    "cgn flows patty",
+    "cgn flows marge",
+    "accesses per second www"
 ])
 
