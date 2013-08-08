@@ -1,5 +1,3 @@
-from dash.sources import SNMPWalkSum
-
 conf.add(SNMPWalkSum(
     name="noc wlan clients",
     host="wlc.noc.selfnet.de",

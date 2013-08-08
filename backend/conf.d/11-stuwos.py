@@ -1,5 +1,3 @@
-from dash.sources import SNMP
-from dash.conversions import SimpleConversion
 from os import popen
 
 # BORDER ROUTER TRAFFIC

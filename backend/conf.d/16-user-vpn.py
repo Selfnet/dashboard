@@ -1,6 +1,3 @@
-from dash.sources import SNMP
-from dash.conversions import SimpleConversion
-
 conf.add(SNMP(
     host="10.0.2.21",
     oids={
