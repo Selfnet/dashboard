@@ -1,30 +1,6 @@
 from data import Source
 
 
-def latest_value(l):
-    a = None
-    i = 1
-    while a == None:
-        a = l[-i]
-        i += 1
-    return a
-
-def two_latest_values(l):
-    # find the two most recent values != None
-    a = None # first value
-    b = None # second (most recent) value
-    i = 1
-    while b == None:
-        b = l[-i]
-        i += 1
-    # found b
-    while a == None:
-        a = l[-i]
-        i += 1 
-    # found a
-    return a,b
-
-
 class OctetsToBitrate(Source):
     def __init__(self, name, sources):
         self.name = name
@@ -40,7 +16,7 @@ class OctetsToBitrate(Source):
         for name in self.dependencies:
             dataset = self.data.get_dataset(name)
             try:
-                a,b = two_latest_values(dataset)
+                a,b = dataset.two_latest_values()
             except IndexError:
                 a = 0
                 b = 0
@@ -80,7 +56,7 @@ class SimpleConversion(Source):
     def run(self):
         dataset = self.data.get_dataset(self.source)
         try:
-            value = latest_value(dataset)
+            value = dataset.latest_value()
         except IndexError:
             return
         new = self.func(value)
@@ -100,7 +76,7 @@ class Percentage(Source):
         val_dataset = self.data.get_dataset(self.value)
         max_dataset = self.data.get_dataset(self.maximum)
         try:
-            new = 100.0 / latest_value(max_dataset) * latest_value(val_dataset)
+            new = 100.0 / max_dataset.latest_value() * val_dataset.latest_value()
         except IndexError:
             return
         self.data.add(self.name, new)
@@ -123,7 +99,7 @@ class PerSecond(Source):
         for name in self.dependencies:
             dataset = self.data.get_dataset(name)
             try:
-                a,b = two_latest_values(dataset)
+                a,b = dataset.two_latest_values()
             except IndexError:
                 a = 0
                 b = 0
@@ -154,7 +130,7 @@ class Sum(Source):
         total = 0
         for name in self.dependencies:
             dataset = self.data.get_dataset(name)
-            l = int(latest_value(dataset))
+            l = int(dataset.latest_value())
             total += l
         self.data.add(self.name, total)
 

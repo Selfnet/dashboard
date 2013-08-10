@@ -15,11 +15,11 @@ class Config():
         # internals
         self.independent_jobs = []
         self.meta_jobs = []
-        self.published_sets = {}
+        self.published_sets = []
         self.outputs = []
 
         if not data:
-            data = Data(self.defaults["dataset size"])
+            data = Data(self)
         self.data = data
 
     def get_independent_callables(self):
@@ -50,7 +50,7 @@ class Config():
             self.publish(name)
 
     def publish(self, name):
-        self.published_sets[name] = self.data.get_dataset(name)
+        self.published_sets.append(name)
 
     def get_published(self):
         return self.published_sets
