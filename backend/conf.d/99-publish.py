@@ -27,6 +27,16 @@ conf.publish_list([
     "selfstreaming clients unicast",
     "cgn flows patty",
     "cgn flows marge",
-    "accesses per second www"
+    "accesses per second www",
+    "ping 8.8.8.8",
+    "ping 2001:4860:4860::8888",
+    "ping www.belwue.de",
+    "ping www.heise.de",
+    "ping www.selfnet-status.de",
+    "ping vpn heuss",
+    "ping vpn kade",
+    "ping vpn axa",
+    "ping wla moehringen",
+
 ])
 

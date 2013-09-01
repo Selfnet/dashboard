@@ -1,0 +1,10 @@
+conf.add(Ping(name="ping 8.8.8.8", target="8.8.8.8"))
+conf.add(Ping(name="ping 2001:4860:4860::8888", target="2001:4860:4860::8888", cmd="ping6 -c 1 -W 1"))
+conf.add(Ping(name="ping www.heise.de", target="www.heise.de"))
+conf.add(Ping(name="ping www.belwue.de", target="www.belwue.de"))
+conf.add(Ping(name="ping www.selfnet-status.de", target="www.selfnet-status.de"))
+conf.add(Ping(name="ping vpn heuss", target="eliza.server.selfnet.de"))
+conf.add(Ping(name="ping vpn kade", target="jones.server.selfnet.de"))
+conf.add(Ping(name="ping vpn axa", target="hugo.server.selfnet.de"))
+conf.add(Ping(name="ping wla moehringen", target="cyrus.server.selfnet.de"))
+

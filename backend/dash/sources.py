@@ -203,3 +203,27 @@ class Munin(Source):
         value = self.get_value(self.key, output)
         self.data.add(self.name, value)
 
+class Ping(Source):
+    """ round-trip time to hosts """
+
+    def __init__(self, name, target, cmd="ping -c 1 -W 1"):
+        self.name = name
+        self.target = target
+        self.cmd = cmd
+
+    def run(self):
+        try:
+            self._run()
+        except Exception as e:
+            print(type(e).__name__ + " in HTTP data source \"" + self.cmd + "\"")
+            print(e)
+
+    def _run(self):
+        ping = popen("".join([self.cmd, " ", self.target])).readlines()
+        lastline = ping[-1]
+        if lastline.startswith("rtt min/avg/max/mdev = "):
+            rtt = float(lastline.split("/")[4])
+            self.data.add(self.name, rtt)
+        else:
+            self.data.add(self.name, None)
+
