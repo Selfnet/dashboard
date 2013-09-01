@@ -22,7 +22,7 @@ class Dataset():
         self.lock.acquire()
         self.dataset.append(value)
         if len(self.dataset) > self.length:
-            dataset.pop(0)
+            self.dataset.pop(0)
         self.lock.release()
 
     def get(self, i):
