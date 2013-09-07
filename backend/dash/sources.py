@@ -160,12 +160,18 @@ class Subprocess(Source):
         try:
             self._run()
         except Exception as e:
-            print(type(e).__name__ + " in HTTP data source \"" + self.cmd + "\"")
+            print(type(e).__name__ + " in Subprocess data source \"" + self.cmd + "\"")
             print(e)
 
     def _run(self):
         output = popen(self.cmd).readlines()
-        value = self.func(output) if self.func else output
+        try:
+            value = self.func(output) if self.func else output
+        except Exception, e:
+            print(type(e).__name__ + " while applying the output modifier in Subprocess data source")
+            print(e)
+            self.data.add(self.name, None)
+            return
         self.data.add(self.name, value)
 
 
