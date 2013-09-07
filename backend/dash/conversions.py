@@ -79,6 +79,8 @@ class Percentage(Source):
             new = 100.0 / max_dataset.latest_value() * val_dataset.latest_value()
         except IndexError:
             return
+        except ZeroDivisionError:
+            return
         self.data.add(self.name, new)
 
 
