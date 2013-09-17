@@ -6,5 +6,5 @@ conf.add(Ping(name="ping www.selfnet-status.de", target="www.selfnet-status.de")
 conf.add(Ping(name="ping vpn heuss", target="eliza.server.selfnet.de"))
 conf.add(Ping(name="ping vpn kade", target="jones.server.selfnet.de"))
 conf.add(Ping(name="ping vpn axa", target="hugo.server.selfnet.de"))
-conf.add(Ping(name="ping wla moehringen", target="cyrus.server.selfnet.de"))
+conf.add(Ping(name="ping vpn moehringen", target="cyrus.server.selfnet.de"))
 

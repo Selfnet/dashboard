@@ -36,7 +36,7 @@ conf.publish_list([
     "ping vpn heuss",
     "ping vpn kade",
     "ping vpn axa",
-    "ping wla moehringen",
+    "ping vpn moehringen",
 
 ])
 
