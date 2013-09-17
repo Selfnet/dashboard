@@ -1,3 +1,4 @@
+import logging
 from data import Data
 from sources import *
 from conversions import *
@@ -36,8 +37,8 @@ class Config():
         if job.dependencies:
             for dep in job.dependencies:
                 if not self.data.has_set(dep):
-                    print("Invalid config: \"" + str(dep) + "\" must be configured before \"" + str(job.name) + "\"")
-                    raise KeyError
+                    logging.warning("invalid config: \"" + str(dep) + "\" must be configured before \"" + str(job.name) + "\". " + str(job.name) + " will be ignored")
+                    return
             self.meta_jobs.append(job)
         else:
             self.independent_jobs.append(job)

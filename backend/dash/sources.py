@@ -1,3 +1,4 @@
+import logging
 import netsnmp
 from os import popen
 from urllib import urlopen
@@ -28,7 +29,7 @@ class SNMP(Source):
         if "snmp version" in defaults:
             self.version = defaults["snmp version"]
             if type(self.version) != int:
-                print("WARNING: SNMP protocol version is not an integer value")
+                logging.warning("SNMP protocol version is not an integer value. using version 1.")
         if "snmp community" in defaults:
             self.community = defaults["snmp community"]
 
@@ -36,8 +37,7 @@ class SNMP(Source):
         try:
             self._run()
         except Exception as e:
-            print(type(e).__name__ + " in SNMP data source \"" + self.host + "\"")
-            print(e)
+            logging.error(type(e).__name__ + " " + str(e) + " in SNMP data source \"" + self.host + "\"")
 
     def _run(self):
         try:
@@ -48,16 +48,14 @@ class SNMP(Source):
                 Retries=5,
                 Community=self.community)
         except Exception as e:
-            print(type(e).__name__ + " in SNMP session \"" + self.host + "\"")
-            print(e)
+            logging.error(type(e).__name__ + " " + str(e) + " in SNMP session \"" + self.host + "\"")
             raise
         try:
             values = session.get(self.oids) # oid --> value
             for i in range(len(self.names)):
                 self.data.add(self.names[i], values[i])
         except Exception as e:
-            print(type(e).__name__ + " while fetching SNMP data from \"" + self.host + "\"")
-            print(e)
+            logging.error(type(e).__name__ + " " + str(e) + " while fetching SNMP data from \"" + self.host + "\"")
             raise
 
 
@@ -83,7 +81,7 @@ class SNMPWalkSum(Source):
         if "snmp version" in defaults:
             self.version = defaults["snmp version"]
             if type(self.version) != int:
-                print("WARNING: SNMP protocol version is not an integer value")
+                logging.warning("SNMP protocol version is not an integer value")
         if "snmp community" in defaults:
             self.community = defaults["snmp community"]
 
@@ -91,8 +89,7 @@ class SNMPWalkSum(Source):
         try:
             self._run()
         except Exception as e:
-            print(type(e).__name__ + " in SNMP data source \"" + self.host + "\"")
-            print(e)
+            logging.error(type(e).__name__ + " " + str(e) + " in SNMP data source \"" + self.host + "\"")
 
     def _run(self):
         var = netsnmp.VarList(netsnmp.Varbind(self.oid))
@@ -104,8 +101,7 @@ class SNMPWalkSum(Source):
                 Retries=5,
                 Community=self.community)
         except Exception as e:
-            print(type(e).__name__ + " in SNMP session \"" + self.host + "\"")
-            print(e)
+            logging.error(type(e).__name__ + " " + str(e) + " in SNMP session \"" + self.host + "\"")
             raise
         values = session.walk(var)
         total = 0
@@ -135,8 +131,7 @@ class HTTP(Source):
         try:
             self._run()
         except Exception as e:
-            print(type(e).__name__ + " in HTTP data source \"" + self.url + "\"")
-            print(e)
+            logging.error(type(e).__name__ + " " + str(e) + " in HTTP data source \"" + self.url + "\"")
 
     def _run(self):
         f = urlopen(self.url)
@@ -160,16 +155,14 @@ class Subprocess(Source):
         try:
             self._run()
         except Exception as e:
-            print(type(e).__name__ + " in Subprocess data source \"" + self.cmd + "\"")
-            print(e)
+            logging.error(type(e).__name__ + " " + str(e) + " in Subprocess data source \"" + self.cmd + "\"")
 
     def _run(self):
         output = popen(self.cmd).readlines()
         try:
             value = self.func(output) if self.func else output
         except Exception, e:
-            print(type(e).__name__ + " while applying the output modifier in Subprocess data source")
-            print(e)
+            logging.error(type(e).__name__ + " " + str(e) + " while applying the output modifier in Subprocess data source")
             self.data.add(self.name, None)
             return
         self.data.add(self.name, value)
@@ -194,8 +187,7 @@ class Munin(Source):
         try:
             self._run()
         except Exception as e:
-            print(type(e).__name__ + " in HTTP data source \"" + self.cmd + "\"")
-            print(e)
+            logging.error(type(e).__name__ + " " + str(e) + " in HTTP data source \"" + self.cmd + "\"")
 
     def _run(self):
         s = socket.create_connection((self.host, self.port), 1)
@@ -221,8 +213,7 @@ class Ping(Source):
         try:
             self._run()
         except Exception as e:
-            print(type(e).__name__ + " in HTTP data source \"" + self.cmd + "\"")
-            print(e)
+            logging.error(type(e).__name__ + " " + str(e) + " in HTTP data source \"" + self.cmd + "\"")
 
     def _run(self):
         ping = popen("".join([self.cmd, " ", self.target])).readlines()

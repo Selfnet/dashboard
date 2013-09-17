@@ -1,3 +1,4 @@
+import logging
 from os import popen
 
 # BORDER ROUTER TRAFFIC
@@ -7,7 +8,7 @@ from os import popen
 output = popen("snmpbulkwalk -c public -v 2c stuwost1 .1.3.6.1.2.1.31.1.1.1 | grep AS553").readline()
 stuwost1uplink = output.split(" =")[0].split(".")[-1]
 
-print("stuwost1 uplink interface id: " + str(stuwost1uplink))
+logging.info("stuwost1 uplink interface id: " + str(stuwost1uplink))
 
 conf.add(SNMP(
     host="stuwost1",
@@ -26,7 +27,7 @@ conf.add(SNMP(
 output = popen("snmpbulkwalk -c public -v 2c stuwost2 .1.3.6.1.2.1.31.1.1.1 | grep AS553").readline()
 stuwost2uplink = output.split(" =")[0].split(".")[-1]
 
-print("stuwost2 uplink interface id: " + str(stuwost2uplink))
+logging.info("stuwost2 uplink interface id: " + str(stuwost2uplink))
 
 conf.add(SNMP(
     host="stuwost2",
