@@ -2,25 +2,64 @@
 
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("--loglevel", type=str, metavar="LEVEL", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="CRITICAL, ERROR, WARNING, INFO (default) or DEBUG", default="INFO")
-parser.add_argument("--logfile", type=str, metavar="PATH", help="path and filename for the logfile")
-parser.add_argument("--test", action="store_true", help="don't write any data to memcache")
+
+parser.add_argument(
+    "--loglevel",
+    type=str,
+    metavar="LEVEL",
+    choices=["CRITICAL",
+    "ERROR", "WARNING", "INFO", "DEBUG"],
+    help="CRITICAL, ERROR, WARNING, INFO (default) or DEBUG",
+    default="INFO"
+)
+parser.add_argument(
+    "--logfile",
+    type=str,
+    metavar="FILE",
+    help="path and filename for the logfile"
+)
+parser.add_argument(
+    "--file-loglevel",
+    type=str,
+    metavar="LEVEL",
+    choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
+    help="CRITICAL, ERROR, WARNING, INFO (default) or DEBUG",
+    default="INFO"
+)
+parser.add_argument(
+    "--test",
+    action="store_true",
+    help="don't write any data to memcache"
+)
+
 args = parser.parse_args()
 
+
 import logging
-loglevel = {"CRITICAL": logging.CRITICAL, "ERROR": logging.ERROR, "WARNING": logging.WARNING, "INFO": logging.INFO, "DEBUG": logging.DEBUG}[args.loglevel]
+levels = {
+    "CRITICAL": logging.CRITICAL,
+    "ERROR": logging.ERROR,
+    "WARNING": logging.WARNING,
+    "INFO": logging.INFO,
+    "DEBUG": logging.DEBUG
+}
+
+loglevel_stderr = levels[args.loglevel.upper()]
+loglevel_file   = levels[args.file_loglevel.upper()]
 
 log = logging.getLogger()
+log.setLevel(logging.DEBUG)
 formatter = logging.Formatter(fmt="%(asctime)s %(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 ch = logging.StreamHandler()
 log.addHandler(ch)
-log.setLevel(loglevel)
 ch.setFormatter(formatter)
+ch.setLevel(loglevel_stderr)
 
 if args.logfile:
     fh = logging.FileHandler(args.logfile)
     fh.setFormatter(formatter)
+    fh.setLevel(loglevel_file)
     log.addHandler(fh)
 
 log.info("dashboard started")
