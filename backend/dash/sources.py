@@ -168,10 +168,10 @@ class Subprocess(Source):
 class Munin(Source):
     """ asks munin nodes for stuff """
 
-    def __init__(self, name, host, cmd, key, port=4949):
+    def __init__(self, name, host, identifier, key, port=4949):
         self.name = name
         self.host = host
-        self.cmd = cmd
+        self.identifier = identifier
         self.key = key
         self.port = port
 
@@ -184,7 +184,8 @@ class Munin(Source):
         try:
             s = socket.create_connection((self.host, self.port), 1)
             s.settimeout(1)
-            s.send(self.cmd)
+            cmd = "fetch " + self.identifier + "\nquit"
+            s.send(cmd)
             output = ""
             while True:
                 output += s.recv(2048)
@@ -192,7 +193,7 @@ class Munin(Source):
                     break
             value = self.get_value(self.key, output)
         except Exception as e:
-            logging.error(type(e).__name__ + ": " + str(e) + " in HTTP data source \"" + self.cmd + "\"")
+            logging.error(type(e).__name__ + ": " + str(e) + " in HTTP data source \"" + cmd + "\" on host \"" + self.host + "\"")
             value = None
 
         self.data.add(self.name, value)
