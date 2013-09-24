@@ -35,12 +35,6 @@ class SNMP(Source):
 
     def run(self):
         try:
-            self._run()
-        except Exception as e:
-            logging.error(type(e).__name__ + ": " + str(e) + " in SNMP data source \"" + self.host + "\"")
-
-    def _run(self):
-        try:
             session = netsnmp.Session(DestHost=self.host,
                 Version=self.version,
                 RemotePort=self.port,
@@ -48,15 +42,19 @@ class SNMP(Source):
                 Retries=5,
                 Community=self.community)
         except Exception as e:
-            logging.error(type(e).__name__ + ": " + str(e) + " in SNMP session \"" + self.host + "\"")
-            raise
+            logging.error(type(e).__name__ + ": " + str(e) + " could not open SNMP session with \"" + self.host + "\"")
+
         try:
             values = session.get(self.oids) # oid --> value
-            for i in range(len(self.names)):
-                self.data.add(self.names[i], values[i])
         except Exception as e:
             logging.error(type(e).__name__ + ": " + str(e) + " while fetching SNMP data from \"" + self.host + "\"")
-            raise
+
+        if values:
+            for i in range(len(self.names)):
+                self.data.add(self.names[i], values[i])
+        else:
+            for i in range(len(self.names)):
+                self.data.add(self.names[i], None)
 
 
 
@@ -86,13 +84,8 @@ class SNMPWalkSum(Source):
             self.community = defaults["snmp community"]
 
     def run(self):
-        try:
-            self._run()
-        except Exception as e:
-            logging.error(type(e).__name__ + ": " + str(e) + " in SNMP data source \"" + self.host + "\"")
-
-    def _run(self):
         var = netsnmp.VarList(netsnmp.Varbind(self.oid))
+
         try:
             session = netsnmp.Session(DestHost=self.host,
                 Version=self.version,
@@ -101,12 +94,18 @@ class SNMPWalkSum(Source):
                 Retries=5,
                 Community=self.community)
         except Exception as e:
-            logging.error(type(e).__name__ + ": " + str(e) + " in SNMP session \"" + self.host + "\"")
+            logging.error(type(e).__name__ + ": " + str(e) + " could not open SNMP session with \"" + self.host + "\"")
             raise
-        values = session.walk(var)
+
+        try:
+            values = session.walk(var)
+        except Exception as e:
+            logging.error(type(e).__name__ + ": " + str(e) + " in SNMP-Walk at \"" + self.host + "\"")
+
         total = 0
         for value in values:
             total += int(value)
+
         self.data.add(self.name, total)
         
 
@@ -129,14 +128,12 @@ class HTTP(Source):
 
     def run(self):
         try:
-            self._run()
+            f = urlopen(self.url)
+            output = f.read().strip()
+            f.close()
         except Exception as e:
             logging.error(type(e).__name__ + ": " + str(e) + " in HTTP data source \"" + self.url + "\"")
-
-    def _run(self):
-        f = urlopen(self.url)
-        output = f.read().strip()
-        f.close()
+            output = None
         self.data.add(self.name, output)
  
 
@@ -153,18 +150,18 @@ class Subprocess(Source):
 
     def run(self):
         try:
-            self._run()
-        except Exception as e:
-            logging.error(type(e).__name__ + ": " + str(e) + " in Subprocess data source \"" + self.cmd + "\"")
+            output = popen(self.cmd).readlines()
+        except Exception, e:
+            logging.error(type(e).__name__ + ": " + str(e) + " in Subprocess \"" + self.cmd + "\"")
+            value = None
 
-    def _run(self):
-        output = popen(self.cmd).readlines()
         try:
             value = self.func(output) if self.func else output
         except Exception, e:
             logging.error(type(e).__name__ + ": " + str(e) + " while applying the output modifier in Subprocess data source")
-            self.data.add(self.name, None)
-            return
+            logging.debug("received data was: " + repr(output))
+            value = None
+
         self.data.add(self.name, value)
 
 
@@ -185,20 +182,19 @@ class Munin(Source):
 
     def run(self):
         try:
-            self._run()
+            s = socket.create_connection((self.host, self.port), 1)
+            s.settimeout(1)
+            s.send(self.cmd)
+            output = ""
+            while True:
+                output += s.recv(2048)
+                if output.endswith("\n.\n"):
+                    break
+            value = self.get_value(self.key, output)
         except Exception as e:
             logging.error(type(e).__name__ + ": " + str(e) + " in HTTP data source \"" + self.cmd + "\"")
+            value = None
 
-    def _run(self):
-        s = socket.create_connection((self.host, self.port), 1)
-        s.settimeout(1)
-        s.send(self.cmd)
-        output = ""
-        while True:
-            output += s.recv(2048)
-            if output.endswith("\n.\n"):
-                break
-        value = self.get_value(self.key, output)
         self.data.add(self.name, value)
 
 class Ping(Source):
@@ -211,16 +207,16 @@ class Ping(Source):
 
     def run(self):
         try:
-            self._run()
+            ping = popen("".join([self.cmd, " ", self.target])).readlines()
+            lastline = ping[-1]
+            if lastline.startswith("rtt min/avg/max/mdev = "):
+                rtt = float(lastline.split("/")[4])
+            else:
+                logging.debug("last line of ping did not contain timings: " + repr(output))
+                rtt = None
         except Exception as e:
             logging.error(type(e).__name__ + ": " + str(e) + " in HTTP data source \"" + self.cmd + "\"")
+            rtt = None
 
-    def _run(self):
-        ping = popen("".join([self.cmd, " ", self.target])).readlines()
-        lastline = ping[-1]
-        if lastline.startswith("rtt min/avg/max/mdev = "):
-            rtt = float(lastline.split("/")[4])
-            self.data.add(self.name, rtt)
-        else:
-            self.data.add(self.name, None)
+        self.data.add(self.name, rtt)
 
