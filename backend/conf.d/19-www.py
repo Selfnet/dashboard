@@ -1,7 +1,7 @@
 conf.add(Munin(
     name="accesses www",
     host="www",
-    cmd="fetch apache_accesses\nquit",
+    identifier="apache_accesses",
     key="accesses80"
 ))
 
