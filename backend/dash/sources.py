@@ -193,7 +193,7 @@ class Munin(Source):
                     break
             value = self.get_value(self.key, output)
         except Exception as e:
-            logging.error(type(e).__name__ + ": " + str(e) + " in HTTP data source \"" + cmd + "\" on host \"" + self.host + "\"")
+            logging.error(type(e).__name__ + ": " + str(e) + " in HTTP data source \"" + self.identifier + "\" on host \"" + self.host + "\"")
             value = None
 
         self.data.add(self.name, value)
