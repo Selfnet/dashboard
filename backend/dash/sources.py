@@ -213,10 +213,10 @@ class Ping(Source):
             if lastline.startswith("rtt min/avg/max/mdev = "):
                 rtt = float(lastline.split("/")[4])
             else:
-                logging.debug("last line of ping did not contain timings: " + repr(output))
+                logging.debug("last line of ping did not contain timings: " + repr(lastline))
                 rtt = None
         except Exception as e:
-            logging.error(type(e).__name__ + ": " + str(e) + " in HTTP data source \"" + self.cmd + "\"")
+            logging.error(type(e).__name__ + ": " + str(e) + " in \"" + self.cmd + " " + self.target + "\"")
             rtt = None
 
         self.data.add(self.name, rtt)
