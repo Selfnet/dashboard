@@ -221,3 +221,11 @@ class Ping(Source):
 
         self.data.add(self.name, rtt)
 
+class Ping6(Ping):
+    """ round-trip time to hosts """
+
+    def __init__(self, name, target, cmd="ping6 -c 1 -W 1"):
+        self.name = name
+        self.target = target
+        self.cmd = cmd
+
