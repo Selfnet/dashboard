@@ -201,7 +201,7 @@ class Munin(Source):
 class Ping(Source):
     """ round-trip time to hosts """
 
-    def __init__(self, name, target, cmd="ping -c 1 -W 1"):
+    def __init__(self, name, target, cmd="ping -i 0.2 -c 3 -W 1"):
         self.name = name
         self.target = target
         self.cmd = cmd
@@ -224,7 +224,7 @@ class Ping(Source):
 class Ping6(Ping):
     """ round-trip time to hosts """
 
-    def __init__(self, name, target, cmd="ping6 -c 1 -W 1"):
+    def __init__(self, name, target, cmd="ping6 -i 0.2 -c 3 -W 1"):
         self.name = name
         self.target = target
         self.cmd = cmd
