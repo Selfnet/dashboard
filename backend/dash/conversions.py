@@ -76,7 +76,7 @@ class Percentage(Source):
         val_dataset = self.data.get_dataset(self.value)
         max_dataset = self.data.get_dataset(self.maximum)
         try:
-            new = 100.0 / max_dataset.latest_value() * val_dataset.latest_value()
+            new = round(100.0 / max_dataset.latest_value() * val_dataset.latest_value(), 2)
         except IndexError:
             return
         except ZeroDivisionError:
