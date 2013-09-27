@@ -7,5 +7,5 @@ print "Content-Type: application/json"
 print
 
 mc = memcache.Client(['127.0.0.1:11211'], debug=0)
-data = mc.get_multi(["meta", "charts", "history"])
+data = mc.get_multi(["meta", "history"])
 print(json.dumps(data, separators=(",", ":")))
