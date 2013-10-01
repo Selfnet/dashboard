@@ -7,3 +7,6 @@ conf.defaults["snmp version"] = 2
 conf.defaults["snmp community"] = "public"
 
 conf.defaults["dataset size"] = 1080
+
+conf.defaults["munin timeout"] = 1.5
+

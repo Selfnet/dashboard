@@ -175,6 +175,9 @@ class Munin(Source):
         self.key = key
         self.port = port
 
+    def setup_defaults(self, defaults):
+        self.timeout = defaults["munin timeout"] if "munin timeout" in defaults else 1
+
     def get_value(self, key, output):
         for line in output.split("\n"):
             if line.startswith(key + ".value "):
@@ -182,8 +185,8 @@ class Munin(Source):
 
     def run(self):
         try:
-            s = socket.create_connection((self.host, self.port), 1)
-            s.settimeout(1)
+            s = socket.create_connection((self.host, self.port), self.timeout)
+            s.settimeout(self.timeout)
             cmd = "fetch " + self.identifier + "\nquit"
             s.send(cmd)
             output = ""
