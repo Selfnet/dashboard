@@ -6,9 +6,18 @@ class Source(object):
     def __init__(self, name):
         self.name = name
 
-    def configure(self, data, defaults, interval):
+    def setup_datasets(self, data):
+        """ override this for different dataset setup """
         self.data = data
         self.data.add_set(self.name)
+
+    def setup_defaults(self, defaults):
+        """ override this to set default values """
+        pass
+
+    def set_interval(self, interval):
+        """ override if subclass needs to know the interval """
+        pass
 
 
 

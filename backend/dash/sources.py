@@ -20,10 +20,12 @@ class SNMP(Source):
         self.version = version or 1
         self.community = community or "public"
 
-    def configure(self, data, defaults, interval):
+    def setup_datasets(self, data):
         self.data = data
         for name in self.names:
             self.data.add_set(name)
+
+    def setup_defaults(self, defaults):
         if "snmp port" in defaults:
             self.port = defaults["snmp port"]
         if "snmp version" in defaults:
@@ -71,9 +73,7 @@ class SNMPWalkSum(Source):
         self.version = version or 1
         self.community = community or "public"
 
-    def configure(self, data, defaults, interval):
-        self.data = data
-        self.data.add_set(self.name)
+    def setup_defaults(self, defaults):
         if "snmp port" in defaults:
             self.port = defaults["snmp port"]
         if "snmp version" in defaults:

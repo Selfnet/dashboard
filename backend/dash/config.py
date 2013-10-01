@@ -33,7 +33,9 @@ class Config():
         return [job.run for job in self.outputs]
 
     def add(self, job):
-        job.configure(self.data, self.defaults, self.interval)
+        job.setup_datasets(self.data)
+        job.setup_defaults(self.defaults)
+        job.set_interval(self.interval)
         if job.dependencies:
             for dep in job.dependencies:
                 if not self.data.has_set(dep):

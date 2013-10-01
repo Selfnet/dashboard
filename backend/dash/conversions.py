@@ -6,9 +6,7 @@ class OctetsToBitrate(Source):
         self.name = name
         self.dependencies = sources
 
-    def configure(self, data, defaults, interval):
-        self.data = data
-        self.data.add_set(self.name)
+    def set_interval(self, interval):
         self.interval = interval
 
     def run(self):
@@ -91,9 +89,7 @@ class PerSecond(Source):
         self.name = name
         self.dependencies = sources
 
-    def configure(self, data, defaults, interval):
-        self.data = data
-        self.data.add_set(self.name)
+    def set_interval(self, interval):
         self.interval = interval
 
     def run(self):
