@@ -1,5 +1,6 @@
 # general settings
-conf.interval = 10
+#conf.interval = 10
+#conf.threads = None # ==> use the number of sources
 
 conf.set_loglevel("INFO")
 conf.add_logfile("dash.log", "WARNING")

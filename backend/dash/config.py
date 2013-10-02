@@ -9,7 +9,8 @@ import os
 class Config():
     def __init__(self, data=None):
         # config + defaults
-        self.interval = 60 # default value
+        self.interval = 10 # default value
+        self.threads = None # ==> 1 thread per source
         self.defaults = {
             "dataset size": 300,
             "logging format": "%(asctime)s %(levelname)s: %(message)s",

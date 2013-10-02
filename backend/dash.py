@@ -89,7 +89,11 @@ meta_jobs = conf.get_meta_callables()
 outputs = conf.get_output_callables()
 
 # execute jobs
-pool = ThreadPool(processes=8)
+threads = getattr(conf, "threads", None)
+if not threads:
+    threads = len(independent_jobs)
+logging.info("starting " + str(threads) + " threads")
+pool = ThreadPool(threads)
 
 logging.debug("entering main loop")
 
