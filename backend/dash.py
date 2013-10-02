@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import logging
+
 import argparse
 parser = argparse.ArgumentParser()
 
@@ -10,21 +12,6 @@ parser.add_argument(
     choices=["CRITICAL",
     "ERROR", "WARNING", "INFO", "DEBUG"],
     help="CRITICAL, ERROR, WARNING, INFO (default) or DEBUG",
-    default="INFO"
-)
-parser.add_argument(
-    "--logfile",
-    type=str,
-    metavar="FILE",
-    help="path and filename for the logfile"
-)
-parser.add_argument(
-    "--file-loglevel",
-    type=str,
-    metavar="LEVEL",
-    choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
-    help="CRITICAL, ERROR, WARNING, INFO (default) or DEBUG",
-    default="INFO"
 )
 parser.add_argument(
     "--test",
@@ -35,39 +22,8 @@ parser.add_argument(
 args = parser.parse_args()
 
 
-import logging
-levels = {
-    "CRITICAL": logging.CRITICAL,
-    "ERROR": logging.ERROR,
-    "WARNING": logging.WARNING,
-    "INFO": logging.INFO,
-    "DEBUG": logging.DEBUG
-}
 
-loglevel_stderr = levels[args.loglevel.upper()]
-loglevel_file   = levels[args.file_loglevel.upper()]
 
-log = logging.getLogger()
-log.setLevel(logging.DEBUG)
-formatter = logging.Formatter(fmt="%(asctime)s %(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
-
-ch = logging.StreamHandler()
-log.addHandler(ch)
-ch.setFormatter(formatter)
-ch.setLevel(loglevel_stderr)
-
-if args.logfile:
-    fh = logging.FileHandler(args.logfile)
-    fh.setFormatter(formatter)
-    fh.setLevel(loglevel_file)
-    log.addHandler(fh)
-
-log.info("dashboard started")
-
-if args.test:
-    logging.warning("test mode - output data will not be stored in memcache!")
-
-log.debug("loading modules")
 import os
 import sys
 import time
@@ -77,6 +33,8 @@ import memcache
 from dash.config import Config
 
 
+
+
 def execute_files(folder):
     items = os.listdir(folder)
     items.sort()
@@ -84,7 +42,6 @@ def execute_files(folder):
         path = os.path.join(folder, item)
         if os.path.isfile(path):
             if path.endswith(".py"):
-                log.debug("executing %s", path)
                 exec(compile(open(path).read(), path, 'exec'), globals(), locals())
         else:
             execute_files(path)
@@ -92,13 +49,13 @@ def execute_files(folder):
 def update_loop():
     timer = Timer(conf.interval, update_loop).start()
 
-    log.debug("update: fetching data")
+    logging.debug("update: fetching data")
 
     # fetch raw data from all the sources
     t1 = time.time()
     pool.map(lambda x: x(), independent_jobs)
 
-    log.debug("update: deriving datasets")
+    logging.debug("update: deriving datasets")
 
     # process data
     for job in meta_jobs:
@@ -109,19 +66,32 @@ def update_loop():
     if not args.test:
         logging.debug("update: writing outputs")
         pool.map(lambda x: x(), outputs)
+    else:
+        logging.debug("test mode - suppressing output")
 
-    log.info("update done, {0:.2f} seconds".format(t2-t1))
+    logging.info("update done, {0:.2f} seconds".format(t2-t1))
+
+
 
 
 # load config
 conf = Config()
 execute_files("conf.d")
+
+if args.loglevel:
+    conf.set_loglevel(args.loglevel)
+    logging.info("loglevel reset by command line argument")
+if args.test:
+    logging.warning("test mode - output data will not be stored in memcache!")
+
 independent_jobs = conf.get_independent_callables()
 meta_jobs = conf.get_meta_callables()
 outputs = conf.get_output_callables()
 
 # execute jobs
 pool = ThreadPool(processes=8)
+
+logging.debug("entering main loop")
 
 update_loop()
 

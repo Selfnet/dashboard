@@ -1,6 +1,9 @@
 # general settings
 conf.interval = 10
 
+conf.set_loglevel("INFO")
+conf.add_logfile("dash.log", "WARNING")
+
 # defaultss
 conf.defaults["snmp port"] = 161
 conf.defaults["snmp version"] = 2

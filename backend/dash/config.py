@@ -10,8 +10,16 @@ class Config():
     def __init__(self, data=None):
         # config + defaults
         self.interval = 60 # default value
-        self.defaults = {}
-        self.defaults["dataset size"] = 300
+        self.defaults = {
+            "dataset size": 300,
+            "logging format": "%(asctime)s %(levelname)s: %(message)s",
+            "logging dateformat": "%Y-%m-%d %H:%M:%S",
+        }
+
+        # logging
+        self.streamhandler = None
+        self.log = logging.getLogger()
+        self.log.setLevel(logging.DEBUG)
 
         # internals
         self.independent_jobs = []
@@ -22,6 +30,33 @@ class Config():
         if not data:
             data = Data(self)
         self.data = data
+
+    def set_loglevel(self, level):
+        if not self.streamhandler:
+            log = logging.getLogger()
+            self.streamhandler = logging.StreamHandler()
+            log.addHandler(self.streamhandler)
+        formatter = logging.Formatter(
+            fmt=self.defaults["logging format"],
+            datefmt=self.defaults["logging dateformat"]
+        )
+        loglevel = getattr(logging, level.upper(), logging.INFO)
+        self.streamhandler.setFormatter(formatter)
+        self.streamhandler.setLevel(loglevel)
+        logging.info("loglevel set to " + str(level))
+
+    def add_logfile(self, filename, level):
+        log = logging.getLogger()
+        filehandler = logging.FileHandler(filename)
+        log.addHandler(filehandler)
+        formatter = logging.Formatter(
+            fmt=self.defaults["logging format"],
+            datefmt=self.defaults["logging dateformat"]
+        )
+        loglevel = getattr(logging, level.upper(), logging.INFO)
+        filehandler.setFormatter(formatter)
+        filehandler.setLevel(loglevel)
+        logging.info("added logfile \"" + str(filename) + "\", level " + str(level))
 
     def get_independent_callables(self):
         return [job.run for job in self.independent_jobs]
