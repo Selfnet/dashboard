@@ -22,6 +22,6 @@ conf.add(Ping6(name="ping6 vpn axa", target="hugo.server.selfnet.de"))
 conf.add(Ping(name="ping vpn moehringen", target="cyrus.server.selfnet.de"))
 #conf.add(Ping6(name="ping6 vpn moehringen", target="cyrus.server.selfnet.de"))
 
-conf.add(Ping(name="ping switch schwabengarage", target="10.13.6.11"))
-conf.add(Ping6(name="ping6 switch schwabengarage", target="2001:7c0:e701:4c0::11"))
+conf.add(Ping(name="ping switch schwabengarage", target="sg-1.lan.selfnet.de"))
+conf.add(Ping6(name="ping6 switch schwabengarage", target="sg-1.lan.selfnet.de"))
 
