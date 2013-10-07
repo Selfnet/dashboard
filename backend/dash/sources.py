@@ -14,8 +14,21 @@ class SNMP(Source):
 
     def __init__(self, host, oids, port=None, version=None, community=None):
         self.host = host
-        self.names = oids.keys()
-        self.oids = netsnmp.VarList(*[netsnmp.Varbind(oid) for oid in oids.values()])
+        # due to the unique way netsnmp works we need three lists
+        if type(oids) == dict:
+            self.names = oids.keys()
+            strings = [t[0] for t in oids.values()]
+            self.func = [t[1] for t in oids.values()]
+            self.oids = netsnmp.VarList(*strings)
+        elif type(oids) == tuple:
+            self.names = []
+            strings = []
+            self.func = []
+            for t in oids:
+                self.names.append(t[0])
+                strings.append(t[1])
+                self.func.append(t[2])
+                self.oids = netsnmp.VarList(*strings)
         self.port = port or 161
         self.version = version or 1
         self.community = community or "public"
@@ -53,7 +66,8 @@ class SNMP(Source):
 
         if values:
             for i in range(len(self.names)):
-                self.data.add(self.names[i], values[i])
+                value = self.func[i](values[i]) if values[i] else None
+                self.data.add(self.names[i], value)
         else:
             for i in range(len(self.names)):
                 self.data.add(self.names[i], None)
@@ -122,9 +136,10 @@ class HTTP(Source):
 
     dependencies = []
 
-    def __init__(self, name, url):
+    def __init__(self, name, url, func=str):
         self.name = name
         self.url = url
+        self.func = func
 
     def run(self):
         try:
@@ -134,7 +149,7 @@ class HTTP(Source):
         except Exception as e:
             logging.error(type(e).__name__ + ": " + str(e) + " in HTTP data source \"" + self.url + "\"")
             output = None
-        self.data.add(self.name, output)
+        self.data.add(self.name, self.func(output))
  
 
 
