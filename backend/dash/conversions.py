@@ -2,9 +2,10 @@ from data import Source
 
 
 class OctetsToBitrate(Source):
-    def __init__(self, name, sources):
+    def __init__(self, name, sources, intervals_average=1):
         self.name = name
         self.dependencies = sources
+        self.intervals_average = intervals_average
 
     def set_interval(self, interval):
         self.interval = interval
@@ -14,7 +15,8 @@ class OctetsToBitrate(Source):
         for name in self.dependencies:
             dataset = self.data.get_dataset(name)
             try:
-                a,b = dataset.two_latest_values()
+                a = dataset.nth_latest_value(self.intervals_average + 1)
+                b = dataset.latest_value()
             except IndexError:
                 a = 0
                 b = 0
@@ -25,13 +27,11 @@ class OctetsToBitrate(Source):
 
             # this happens on the first run
             if a == 0 or b == 0:
-                return
-
-            # difference between oldest two entries, modulo 16/32/64 (overflows)
-            if b < a:
+                pass
+            elif b < a: # difference between oldest two entries, modulo 16/32/64 (overflows)
                 # overflow happened
                 # guess the size of the counter
-                size = len(bin(a) - 2)
+                size = len(bin(a)) - 2
                 # round to the next multiple of 8
                 size = (size + 7) / 8 * 8
                 # rest to maxint(size)
@@ -40,7 +40,7 @@ class OctetsToBitrate(Source):
                 total = rest + b
             else:
                 total += (b - a)
-        bitrate = (total * 8) / self.interval
+        bitrate = (total * 8) / (self.interval * self.intervals_average)
         self.data.add(self.name, bitrate)
 
 
