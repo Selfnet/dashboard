@@ -64,6 +64,7 @@ class Memcache(object):
                 dataset.add(None)
             i += 1
         logging.info("restored " + str(i) + " datasets (gap: " + str(now - last_update) + " seconds)")
+        meta = self.mc.get("meta")
         meta["refresh"] = int(time())
         self.mc.set_multi({"meta": meta})
 
