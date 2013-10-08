@@ -73,6 +73,9 @@ class Dataset():
         # found a
         return a,b
 
+    def nth_latest_value(self, n):
+        return self.dataset[-n]
+
 
 
 
