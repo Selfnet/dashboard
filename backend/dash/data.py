@@ -89,6 +89,9 @@ class Data():
             self.add_set(name)
             return self.datasets[name]
 
+    def get_names(self):
+        return self.datasets.keys()
+
     def add_set(self, name, length=None):
         # use default length?
         if not length:

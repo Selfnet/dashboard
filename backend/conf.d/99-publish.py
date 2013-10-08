@@ -49,3 +49,9 @@ conf.publish_list([
 
 ])
 
+memcache = Memcache(["localhost:11211"])
+conf.output(memcache)
+
+# restore data from memcache
+memcache.restore()
+

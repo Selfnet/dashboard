@@ -29,7 +29,6 @@ import sys
 import time
 from multiprocessing.pool import ThreadPool
 from threading import Timer
-import memcache
 from dash.config import Config
 
 

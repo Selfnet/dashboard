@@ -82,6 +82,9 @@ class Config():
             self.independent_jobs.append(job)
 
     def output(self, o):
+        o.set_data(self.data)
+        o.set_published(self.published_sets)
+        o.set_interval(self.interval)
         self.outputs.append(o)
 
     def publish_list(self, l):
