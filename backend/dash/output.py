@@ -39,7 +39,8 @@ class Memcache(object):
         """
         logging.info("trying to restore from memache")
         try:
-            last_update = self.mc.get("meta")["refresh"]
+            meta = self.mc.get("meta") or {}
+            last_update = meta["refresh"]
             history = self.mc.get("history")
         except KeyError:
             logging.warning("no valid data in memcache, can't restore")
