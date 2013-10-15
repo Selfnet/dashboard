@@ -75,7 +75,9 @@ def update_loop():
 
 # load config
 conf = Config()
-execute_files("conf.d")
+pwd = os.path.dirname(__file__)
+configpath = os.path.join(pwd, "conf.d")
+execute_files(configpath)
 
 if args.loglevel:
     conf.set_loglevel(args.loglevel)
