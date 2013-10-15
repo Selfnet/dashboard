@@ -3,7 +3,7 @@
 #conf.threads = None # ==> use the number of sources
 
 conf.set_loglevel("INFO")
-conf.add_logfile("dash.log", "WARNING")
+conf.add_logfile("/var/log/dashboard/dash.log", "WARNING")
 
 # defaultss
 conf.defaults["snmp port"] = 161
