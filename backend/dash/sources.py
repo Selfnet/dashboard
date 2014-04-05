@@ -1,7 +1,8 @@
 import logging
+import subprocess
 import netsnmp
 from os import popen
-from urllib import urlopen
+from urllib2 import urlopen
 from time import time
 import socket
 
@@ -29,9 +30,9 @@ class SNMP(Source):
                 strings.append(t[1])
                 self.func.append(t[2])
                 self.oids = netsnmp.VarList(*strings)
-        self.port = port or 161
-        self.version = version or 1
-        self.community = community or "public"
+        self.port = port
+        self.version = version
+        self.community = community
 
     def setup_datasets(self, data):
         self.data = data
@@ -39,13 +40,14 @@ class SNMP(Source):
             self.data.add_set(name)
 
     def setup_defaults(self, defaults):
-        if "snmp port" in defaults:
+        if "snmp port" in defaults and not self.port:
             self.port = defaults["snmp port"]
-        if "snmp version" in defaults:
+        if "snmp version" in defaults and not self.version:
             self.version = defaults["snmp version"]
             if type(self.version) != int:
                 logging.warning("SNMP protocol version is not an integer value. using version 1.")
-        if "snmp community" in defaults:
+                self.version = 1
+        if "snmp community" in defaults and not self.community:
             self.community = defaults["snmp community"]
 
     def run(self):
@@ -53,8 +55,8 @@ class SNMP(Source):
             session = netsnmp.Session(DestHost=self.host,
                 Version=self.version,
                 RemotePort=self.port,
-                Timeout=400000,
-                Retries=5,
+                Timeout=2000000,
+                Retries=1,
                 Community=self.community)
         except Exception as e:
             logging.error(type(e).__name__ + ": " + str(e) + " could not open SNMP session with \"" + self.host + "\"")
@@ -84,44 +86,57 @@ class SNMPWalkSum(Source):
         self.host = host
         self.oid = oid
         self.port = port or 161
-        self.version = version or 1
+        # self.version = version or 1
+        self.version = "2c"
         self.community = community or "public"
 
     def setup_defaults(self, defaults):
         if "snmp port" in defaults:
             self.port = defaults["snmp port"]
-        if "snmp version" in defaults:
-            self.version = defaults["snmp version"]
-            if type(self.version) != int:
-                logging.warning("SNMP protocol version is not an integer value")
+        # if "snmp version" in defaults:
+        #     self.version = defaults["snmp version"]
+        #     if type(self.version) != int:
+        #         logging.warning("SNMP protocol version is not an integer value")
         if "snmp community" in defaults:
             self.community = defaults["snmp community"]
 
     def run(self):
         var = netsnmp.VarList(netsnmp.Varbind(self.oid))
 
-        try:
-            session = netsnmp.Session(DestHost=self.host,
-                Version=self.version,
-                RemotePort=self.port,
-                Timeout=400000,
-                Retries=5,
-                Community=self.community)
-        except Exception as e:
-            logging.error(type(e).__name__ + ": " + str(e) + " could not open SNMP session with \"" + self.host + "\"")
-            raise
+        # try:
+        #     session = netsnmp.Session(DestHost=self.host,
+        #         Version=self.version,
+        #         RemotePort=self.port,
+        #         Timeout=2000000,
+        #         Retries=1,
+        #         Community=self.community)
+        # except Exception as e:
+        #     logging.error(type(e).__name__ + ": " + str(e) + " could not open SNMP session with \"" + self.host + "\"")
+        #     raise
 
-        try:
-            values = session.walk(var)
-        except Exception as e:
-            logging.error(type(e).__name__ + ": " + str(e) + " in SNMP-Walk at \"" + self.host + "\"")
+        # try:
+        #     values = session.walk(var)
+        # except Exception as e:
+        #     logging.error(type(e).__name__ + ": " + str(e) + " in SNMP-Walk at \"" + self.host + "\"")
 
         total = 0
-        for value in values:
-            total += int(value)
 
-        self.data.add(self.name, total)
-        
+        try:
+            args = ["snmpbulkwalk", "-O", "q", "-v", str(self.version), "-c", str(self.community), str(self.host), str(self.oid)]
+            process = subprocess.Popen(args, stdout=subprocess.PIPE)
+            out, err = process.communicate()
+            if out:
+                for line in out.split(b"\n"):
+                    if line:
+                        value = int(line.split(" ")[1])
+                        total += value
+                self.data.add(self.name, total)
+            else:
+                self.data.add(self.name, None)
+        except Exception, e:
+            logging.error(type(e).__name__ + ": " + str(e) + " in SNMP-Walk at \"" + self.host + "\"")
+            self.data.add(self.name, None)
+
 
 
 class Timestamp(Source):
@@ -142,14 +157,16 @@ class HTTP(Source):
         self.func = func
 
     def run(self):
+        value = None
         try:
-            f = urlopen(self.url)
+            f = urlopen(self.url, timeout=5)
             output = f.read().strip()
             f.close()
+            value = self.func(output)
         except Exception as e:
             logging.error(type(e).__name__ + ": " + str(e) + " in HTTP data source \"" + self.url + "\"")
             output = None
-        self.data.add(self.name, self.func(output))
+        self.data.add(self.name, value)
  
 
 
@@ -164,6 +181,7 @@ class Subprocess(Source):
         self.func = func
 
     def run(self):
+        output = None
         try:
             output = popen(self.cmd).readlines()
         except Exception, e:
