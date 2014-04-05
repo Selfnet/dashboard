@@ -1,6 +1,8 @@
 *.py[cod]
 
+# dashboard
 *.log
+backend/conf.d/*
 
 # C extensions
 *.so
