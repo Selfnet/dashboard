@@ -50,10 +50,10 @@ class Source():
 
 
 
-class OriginalSource(Source, threading.Thread):
+class TimedSource(Source, threading.Thread):
 
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super(OriginalSource, self).__init__(**kwargs)
         threading.Thread.__init__(self)
         self.running = threading.Event()
         self.running.set()
@@ -77,7 +77,7 @@ class OriginalSource(Source, threading.Thread):
 
 class PubSubSource(Source, threading.Thread):
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        super(PubSubSource, self).__init__(**kwargs)
         threading.Thread.__init__(self)
         self.pubsub = self.redis.pubsub()
         channels = ["__keyspace@0__:" + s + ":val" for s in self.params["sources"]]
