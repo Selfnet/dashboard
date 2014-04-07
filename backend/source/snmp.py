@@ -37,7 +37,7 @@ class SNMPGet(TimedSource):
                 type(e).__name__ + ":",
                 str(e),
                 "in SNMPGet for \"" + self.params["host"] + "\", OID: \"" + self.params["oid"] + "\""
-            ])
+            ]))
             self.push(self.name, None)
 
         try:
@@ -56,5 +56,5 @@ class SNMPGet(TimedSource):
                 type(e).__name__ + ":",
                 str(e),
                 "in SNMPGet for \"" + self.params["host"] + "\", OID: \"" + self.params["oid"] + "\""
-            ])
+            ]))
             self.push(self.name, None)

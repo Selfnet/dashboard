@@ -54,7 +54,7 @@ class Source():
                 type(e).__name__ + ":",
                 str(e),
                 " - could not write to redis database"
-            ])
+            ]))
 
 
 
