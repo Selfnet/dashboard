@@ -1,4 +1,5 @@
 import threading
+import logging
 import time
 import redis
 
@@ -43,10 +44,17 @@ class Source():
             timestamp = time.time()
         length = self.params["length"]
         name = self.params["name"]
-        self.redis.lpush(name + ":val", value)
-        self.redis.ltrim(name + ":val", 0, length - 1)
-        self.redis.lpush(name + ":ts", timestamp)
-        self.redis.ltrim(name + ":ts", 0, length - 1)
+        try:
+            self.redis.lpush(name + ":val", value)
+            self.redis.ltrim(name + ":val", 0, length - 1)
+            self.redis.lpush(name + ":ts", timestamp)
+            self.redis.ltrim(name + ":ts", 0, length - 1)
+        except Exception as e:
+            logging.error(" ".join([
+                type(e).__name__ + ":",
+                str(e),
+                " - could not write to redis database"
+            ])
 
 
 
