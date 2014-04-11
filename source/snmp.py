@@ -1,7 +1,7 @@
 import logging
 import subprocess
 
-from base import TimedSource
+from .base import TimedSource
 
 
 

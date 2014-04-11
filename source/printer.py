@@ -1,4 +1,4 @@
-from base import PubSubSource
+from .base import PubSubSource
 
 
 
