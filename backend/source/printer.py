@@ -3,7 +3,6 @@ from base import PubSubSource
 
 
 class Printer(PubSubSource):
-    required = ["sources"]
 
     def update(self):
         for name in self.params["sources"]:
