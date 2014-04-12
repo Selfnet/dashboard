@@ -1,0 +1,106 @@
+settings = {
+    "interval": 10,
+    "db": {
+        "host": "localhost",
+        "port": 6379,
+        "db": 0,
+    },
+    "length": 300,
+}
+    
+
+
+defaults = {
+    "SNMPGet": {
+        "version": "2c",
+        "community": "public",
+        "typecast": int,
+    },
+    "SNMPWalkSum": {
+        "version": "2c",
+        "community": "public",
+    },
+    "HTTPGet": {
+        "typecast": int,
+    },
+    "Ping": {
+        "type": "IPv4",
+        "length": 1,
+    },
+}
+
+
+sources = [
+
+# SNMP
+
+(
+    "SNMPGet", {
+        "name": "router:out:octets",
+        "host": "router",
+        "oid": "iso.3.6.1.2.1.31.1.1.1.10.42",
+        "length": 2,
+    }
+),(
+    "SNMPGet", {
+        "name": "router:in:octets",
+        "host": "router",
+        "oid": "iso.3.6.1.2.1.31.1.1.1.6.42",
+        "length": 2,
+    }
+),(
+    "SNMPGet", {
+        "name": "router:routes:ipv4",
+        "host": "router",
+        "oid": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.0.1.1",
+    }
+),(
+    "SNMPGet", {
+        "name": "router:routes:ipv6",
+        "host": "router",
+        "oid": "iso.3.6.1.4.1.2636.5.1.1.2.6.2.1.8.1.2.1",
+    }
+
+
+
+# SNMPWalkSum
+
+    "SNMPWalkSum", {
+        "name": "wlc:wlan:clients",
+        "host": "wlc",
+        "oid": "iso.3.6.1.4.1.14525.4.5.1.1.2.1.16.12.109.103.48.50.49.49.53.49",
+    }
+),(
+
+
+
+# HTTP
+
+    "HTTPGet", {
+        "name": "rt:tickets:selfnet",
+        "url": "http://example.org/integer",
+    }
+),(
+
+
+
+# Munin
+
+    "Munin", {
+        "name": "nat:flows",
+        "host": "nat",
+        "module": "fw_conntrack",
+        "key": "total",
+    }
+),(
+
+
+
+# Ping
+
+    "Ping", {
+        "name": "ping:google-dns:v4",
+        "host": "8.8.8.8",
+    }
+)
+]

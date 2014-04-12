@@ -20,8 +20,6 @@ class Source():
         "interval": 60,
     }
 
-    defaults = {}
-
     def __init__(self, **kwargs):
         # settings and parameters
         self.params = {}  
@@ -32,7 +30,7 @@ class Source():
         # check if all required arguments are given
         for key in self.required:
             if key not in self.params:
-                raise ValueError("%s argument is required" % key)
+                raise ValueError("%s argument is required for %s" % (key, self.__class__.__name__))
 
         self.connect_db()
 
@@ -72,7 +70,6 @@ class TimedSource(Source, threading.Thread):
         threading.Thread.__init__(self)
         self.running = threading.Event()
         self.running.set()
-        self.start()
 
     def run(self):
         while self.running.is_set():
@@ -99,7 +96,6 @@ class PubSubSource(Source, threading.Thread):
         threading.Thread.__init__(self)
         self.pubsub = None
         self.subscribe()
-        self.start()
 
     def subscribe(self):
         try:
