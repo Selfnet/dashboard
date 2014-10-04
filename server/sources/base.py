@@ -1,5 +1,6 @@
 import threading
 import logging
+import builtins
 import time
 import redis
 
@@ -45,6 +46,16 @@ class Source():
 
         # last measure
         raise KeyError("config parameter \"{key}\" not configured for {classname}".format(key=key, classname=self.__class__.__name__))
+
+    def typecast(self, value, default_type="str"):
+        type_name = self.get_config("typecast", default_type)
+        try:
+            cast = getattr(builtins, type_name)
+            if not isinstance(cast, type):
+                raise ValueError("not a type")
+        except ValueError:
+            raise Exception("HTTPGet: invalid type cast (not a built-in type)")
+        return cast(value)
 
     def connect_db(self):
         try:

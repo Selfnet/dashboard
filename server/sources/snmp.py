@@ -7,108 +7,73 @@ from .base import TimedSource
 
 class SNMPGet(TimedSource):
 
-    defaults = {
-        "version": 1,
-        "community": "public",
-        "typecast": None
-    }
-
-    required = [
-        "host",
-        "oid",
-        "name",
-    ]
-
-    def snmpcall(self):
+    def snmpcall(self, host, oid, version=1, community="public"):
         args = [
             "snmpget",
             "-O", "q",
-            "-v", str(self.params["version"]),
-            "-c", str(self.params["community"]),
-            str(self.params["host"]),
-            str(self.params["oid"])
+            "-v", str(version),
+            "-c", str(community),
+            str(host),
+            str(oid)
         ]
         process = subprocess.Popen(args, stdout=subprocess.PIPE)
         out, err = process.communicate()
         return out
 
     def poll(self):
+        name = self.get_config("name")
+        host = self.get_config("host")
+        oid = self.get_config("oid")
+        version = self.get_config("version", 1)
+        community = self.get_config("community", "public")
         try:
-            out = self.snmpcall()
+            out = self.snmpcall(host, oid, version, community)
+            line = out.split(b"\n")[0]
+            if line:
+                value = line.split(b" ")[1]
+                value = self.typecast(value)
+                self.push(name, value)
         except Exception as e:
             logging.error(" ".join([
                 type(e).__name__ + ":",
                 str(e),
-                "in SNMPGet SNMP-call for \"" + self.params["host"] + "\", OID: \"" + self.params["oid"] + "\""
+                "in SNMPGet SNMP-call for \"{name}\"".format(name)
             ]))
-
-        if out:
-            try:
-                line = out.split(b"\n")[0]
-                if line:
-                    typecast = self.params["typecast"]
-                    value = line.split(b" ")[1]
-                    if typecast:
-                        value = typecast(value)
-                    self.push(self.params["name"], value)
-            except Exception as e:
-                logging.error(" ".join([
-                    type(e).__name__ + ":",
-                    str(e),
-                    "in SNMPGet for \"" + self.params["host"] + "\", OID: \"" + self.params["oid"] + "\""
-                ]))
 
 
 
 class SNMPWalkSum(TimedSource):
 
-    defaults = {
-        "version": 1,
-        "community": "public",
-        "typecast": int,
-    }
-
-    required = [
-        "host",
-        "oid",
-        "name",
-    ]
-
-    def snmpcall(self):
+    def snmpcall(self, host, oid, version=1, community="public"):
         args = [
             "snmpbulkwalk",
             "-O", "q",
-            "-v", str(self.params["version"]),
-            "-c", str(self.params["community"]),
-            str(self.params["host"]),
-            str(self.params["oid"])
+            "-v", str(version),
+            "-c", str(community),
+            str(host),
+            str(oid)
         ]
         process = subprocess.Popen(args, stdout=subprocess.PIPE)
         out, err = process.communicate()
         return out
 
     def poll(self):
+        name = self.get_config("name")
+        host = self.get_config("host")
+        oid = self.get_config("oid")
+        version = self.get_config("version", 1)
+        community = self.get_config("community", "public")
         try:
-            out = self.snmpcall()
+            out = self.snmpcall(host, oid, version, community)
+            total = 0
+            for line in out.split(b"\n"):
+                if line:
+                    value = self.typecast(line.split(b" ")[1])
+                    total += value
+            self.push(name, total)
         except Exception as e:
             logging.error(" ".join([
                 type(e).__name__ + ":",
                 str(e),
-                "in SNMPWalkSum for \"" + self.params["host"] + "\", OID: \"" + self.params["oid"] + "\""
+                "in SNMPGet SNMP-call for \"{name}\"".format(name)
             ]))
-
-        if out:
-            total = 0
-            typecast = self.params["typecast"]
-            try:
-                for line in out.split(b"\n"):
-                    if line:
-                        value = typecast(line.split(b" ")[1])
-                        total += value
-                self.push(self.params["name"], total)
-            except Exception as e:
-                logging.error(" ".join([
-                    type(e).__name__ + ":",
-                    str(e),
-                    "in SNMPWalkSum for \"" + self.params["host"] + "\", OID: \"" + self.params["oid"] + "\""
-                ]))
