@@ -7,33 +7,26 @@ from .base import TimedSource
 
 class Ping(TimedSource):
 
-    defaults = {
-        "timeout": 1,
-        "count": 1,
-    }
-
-    required = [
-        "host",
-        "name",
-    ]
-
-    def pingcall(self):
+    def pingcall(self, host, count=1, timeout=1):
         args = [
             "ping",
             "-c", "1",
             "-i", "0.2",
-            "-c", str(self.params["count"]),
-            "-W", str(self.params["timeout"]),
-            str(self.params["host"])
+            "-c", str(count),
+            "-W", str(timeout),
+            str(host)
         ]
         process = subprocess.Popen(args, stdout=subprocess.PIPE)
         out, err = process.communicate()
         return out
 
     def poll(self):
-        name = self.params["name"]
+        name = self.get_config("name")
+        host = self.get_config("host")
+        count = self.get_config("count", 1)
+        timeout = self.get_config("timeout", 1)
         try:
-            out = self.pingcall()
+            out = self.pingcall(host, count, timeout)
             lastline = out.strip().split(b"\n")[-1]
             if lastline.startswith(b"rtt min/avg/max/mdev = "):
                 rtt = float(lastline.split(b"/")[4])
@@ -45,5 +38,5 @@ class Ping(TimedSource):
             logging.error(" ".join([
                 type(e).__name__ + ":",
                 str(e),
-                "in Ping for \"" + self.params["host"] + "\""
+                "in Ping for \"{host}\"".format(host=host)
             ]))

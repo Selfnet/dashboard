@@ -1,30 +1,25 @@
+import os
 import time
 import logging
 
-import source
+import config
+import sources
 
 
-# load/execute config file
-configfile = "config.py"
-exec(compile(open(configfile).read(), configfile, 'exec'), globals(), locals())
 
-
-# set general default-settings
-source.Source.settings.update(settings)
-
-for classname, args in defaults.items():
-    c = getattr(source, classname)
-    c.defaults.update(args)
+conf = config.parse_config()
 
 
 # spawn threads for sources
 active_sources = []
 
-for item in sources:
-    classname, args = item
+if "sources" not in conf:
+    raise Exception("no sources configured")
+
+for classname, args in conf["sources"].items():
     try:
-        c = getattr(source, classname)
-        instance = c(**args)
+        c = getattr(sources, classname)
+        instance = c(conf, args)
         active_sources.append(instance)
     except ValueError as e:
         logging.error(" ".join([

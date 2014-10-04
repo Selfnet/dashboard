@@ -7,29 +7,19 @@ from .base import TimedSource
 
 class Munin(TimedSource):
 
-    defaults = {
-        "timeout": 3,
-        "port": 4949,
-    }
-
-    required = [
-        "module",
-        "key",
-        "host",
-    ]
-
     def get_value(self, key, output):
         for line in output.split("\n"):
             if line.startswith(key + ".value "):
-                return int(line.split(" ")[1])
+                start = len(key) + len(".value ")
+                return line[start:]
 
     def poll(self):
-        host = self.params["host"]
-        port = self.params["port"]
-        timeout = self.params["timeout"]
-        module = self.params["module"]
-        name = self.params["name"]
-        key = self.params["key"]
+        name = self.get_config("name")
+        host = self.get_config("host", "localhost")
+        port = self.get_config("port", 4949)
+        timeout = self.get_config("timeout", 5)
+        module = self.get_config("module")
+        key = self.get_config("key")
 
         try:
             s = socket.create_connection((host, port), timeout)
@@ -50,5 +40,5 @@ class Munin(TimedSource):
             logging.error(" ".join([
                     type(e).__name__ + ":",
                     str(e),
-                    "in Munin for \"" + self.params["name"]
+                    "in Munin for \"{name}\"".format(name=name)
             ]))
