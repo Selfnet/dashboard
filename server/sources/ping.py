@@ -21,7 +21,6 @@ class Ping(TimedSource):
         return out
 
     def poll(self):
-        name = self.get_config("name")
         host = self.get_config("host")
         count = self.get_config("count", 1)
         timeout = self.get_config("timeout", 1)
@@ -33,7 +32,7 @@ class Ping(TimedSource):
             else:
                 logging.debug("last line of ping did not contain timings: " + repr(lastline))
                 rtt = None
-            self.push(name, rtt)
+            self.push(rtt)
         except Exception as e:
             logging.error(" ".join([
                 type(e).__name__ + ":",

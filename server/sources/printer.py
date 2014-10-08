@@ -4,8 +4,7 @@ from .base import PubSubSource
 
 class Printer(PubSubSource):
 
-    def update(self):
-        for name in self.get_config("sources"):
-            last_ts = self.redis.lindex(name + ":ts", 0)
-            last_val = self.redis.lindex(name + ":val", 0)
+    def update(self, item):
+        for name in self.get_config("source"):
+            last_ts, last_val = self.pull(name)[0]
             print(last_ts + b" " + last_val)

@@ -4,3 +4,4 @@ from .snmp import *
 from .munin import *
 from .ping import *
 from .printer import *
+from .conversion import *

@@ -14,7 +14,6 @@ class Munin(TimedSource):
                 return line[start:]
 
     def poll(self):
-        name = self.get_config("name")
         host = self.get_config("host", "localhost")
         port = self.get_config("port", 4949)
         timeout = self.get_config("timeout", 5)
@@ -35,10 +34,10 @@ class Munin(TimedSource):
                 if not output:
                     break
             value = self.get_value(key, result)
-            self.push(name, value)
+            self.push(value)
         except Exception as e:
             logging.error(" ".join([
                     type(e).__name__ + ":",
                     str(e),
-                    "in Munin for \"{name}\"".format(name=name)
+                    "in Munin for \"{name}\"".format(name=self.get_config("name"))
             ]))

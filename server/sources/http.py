@@ -23,7 +23,7 @@ class HTTPGet(TimedSource):
         try:
             out = self.curlcall(url)
             value = self.typecast(out.strip())
-            self.push(self.get_config("name"), value)
+            self.push(value)
         except Exception as e:
             logging.error(" ".join([
                 type(e).__name__ + ":",

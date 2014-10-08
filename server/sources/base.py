@@ -60,6 +60,7 @@ class Source():
     def connect_db(self):
         try:
             dbconfig = self.config["database"]
+            dbconfig["decode_responses"] = True
         except KeyError:
             raise KeyError("no database config found")
         try:
@@ -71,21 +72,31 @@ class Source():
                 " - could not write to redis database"
             ]))
 
-    def push(self, name, value, timestamp=None):
+    def push(self, value, timestamp=None, name=None):
+        if not name:
+            name = self.get_config("name")
         if not timestamp:
             timestamp = time.time()
+        value = self.typecast(value)
         length = self.get_config("values", 1080)
         try:
-            self.redis.lpush(name + ":val", value)
-            self.redis.ltrim(name + ":val", 0, length - 1)
             self.redis.lpush(name + ":ts", timestamp)
             self.redis.ltrim(name + ":ts", 0, length - 1)
+            self.redis.lpush(name + ":val", value)
+            self.redis.ltrim(name + ":val", 0, length - 1)
         except Exception as e:
             logging.error(" ".join([
                 type(e).__name__ + ":",
                 str(e),
                 " - could not write to redis database"
             ]))
+
+    def pull(self, n=1, name=None):
+        if not name:
+            name = self.get_config("name")
+        ts = self.redis.lrange(name + ":ts", 0, n-1)
+        val = self.redis.lrange(name + ":val", 0, n-1)
+        return list(zip(ts, val))
 
 
 
@@ -126,10 +137,11 @@ class PubSubSource(Source, threading.Thread):
         try:
             self.redis.config_set("notify-keyspace-events", "Kls")
             self.pubsub = self.redis.pubsub()
-            sources = self.get_config("sources")
-            if not sources:
-                raise Exception("no source datasets configured for PubSubSource")
-            channels = ["__keyspace@0__:" + s + ":val" for s in sources]
+            source = self.get_config("source")
+            if type(source) == type([]):
+                channels = ["__keyspace@0__:" + s + ":val" for s in source]
+            elif type(source) == type(""):
+                channels = ["__keyspace@0__:" + source + ":val"]
             self.pubsub.subscribe(channels)
         except Exception as e:
             logging.error(" ".join([
@@ -145,6 +157,6 @@ class PubSubSource(Source, threading.Thread):
         while True:
             if self.pubsub:
                 for item in self.pubsub.listen():
-                    if item["type"] == "message" and item["data"] == b"lpush":
+                    if item["type"] == "message" and item["data"] == "lpush":
                         self.update()
             time.sleep(1)

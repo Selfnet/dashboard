@@ -6,6 +6,7 @@ import json
 # recursively merge dictionaries
 # by Andrew Cooke
 # http://stackoverflow.com/questions/7204805/dictionaries-of-dictionaries-merge
+# adapted to also lists as well
 def merge(a, b, path=None):
     "merges b into a and raises an exception on conflicts"
     if path is None: path = []
@@ -13,25 +14,12 @@ def merge(a, b, path=None):
         if key in a:
             if isinstance(a[key], dict) and isinstance(b[key], dict):
                 merge(a[key], b[key], path + [str(key)])
+            elif isinstance(a[key], list) and isinstance(b[key], list):
+                a[key] = a[key] + b[key]
             elif a[key] == b[key]:
                 pass # same leaf value
             else:
                 raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
-        else:
-            a[key] = b[key]
-    return a
-
-def merge_override(a, b, path=None):
-    "merges b into a, while values in b override values in a"
-    if path is None: path = []
-    for key in b:
-        if key in a:
-            if isinstance(a[key], dict) and isinstance(b[key], dict):
-                merge_override(a[key], b[key], path + [str(key)])
-            elif a[key] == b[key]:
-                pass # same leaf value
-            else:
-                a[key] = b[key]
         else:
             a[key] = b[key]
     return a

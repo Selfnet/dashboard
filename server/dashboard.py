@@ -16,9 +16,9 @@ active_sources = []
 if "sources" not in conf:
     raise Exception("no sources configured")
 
-for classname, args in conf["sources"].items():
+for args in conf["sources"]:
     try:
-        c = getattr(sources, classname)
+        c = getattr(sources, args["class"])
         instance = c(conf, args)
         active_sources.append(instance)
     except ValueError as e:
