@@ -42,8 +42,8 @@ For source objects, the software will search for parameters in the corresponding
 
 Writing own data sources is easy. You can simply write classes that inherit from TimedSource (triggers updates with a timer, configured by the "timeout" parameter) or from PubSubSource (triggers updates when a source dataset, configured in the "source" parameter, gets updated). Both are subclasses of Source (all of them in source/base.py) which already provides some helpful functions:
 
-  * .update(self) create this to do whatever your source needs to do
-  * .get_config(name, default=None) returns a configured value, or the default, or raises an AttributeError
-  * .push(value, name=None, timestamp=None) write a time-value pair to the database, default name comes from the configuration, default timestamp is the current time, values will be typecastet to "type" (from the builtins, default is "str", since redis stores values as strings anyway)
-  * .pull(n=1, name=None) pull time-value pairs from the db, default is one pair (the most recent) from the configured name, but you could also pull the last 10 values for the set "foo"
-  * .typecast(value, default=None) - typecast a value to some built-in type
+  * .poll(self) for TimedSource and .update(self) for PubSubSource - create this to do whatever your source needs to do
+  * .get_config(name, default=None) - returns a configured value, or the default, or raises an AttributeError
+  * .push(value, name=None, timestamp=None) - write a time-value pair to the database, default name comes from the configuration, default timestamp is the current time, values will be typecastet to "type" (from the builtins, default is "str", since redis stores values as strings anyway)
+  * .pull(n=1, name=None) - pull time-value pairs from the db, default is one pair (the most recent) from the configured name, but you could also pull the last 10 values for the set "foo"
+  * .typecast(value, default_type=None) - typecast a value to some built-in type
