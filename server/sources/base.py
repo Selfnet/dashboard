@@ -48,8 +48,9 @@ class Source():
         raise KeyError("config parameter \"{key}\" not configured for {classname}".format(key=key, classname=self.__class__.__name__))
 
     def typecast(self, value, default_type=None):
-        type_name = self.get_config("typecast", default_type)
-        if not type_name:
+        try:
+            type_name = self.get_config("typecast", default_type)
+        except KeyError:
             return value
         try:
             cast = getattr(builtins, type_name)
