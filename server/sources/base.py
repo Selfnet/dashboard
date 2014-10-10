@@ -137,12 +137,18 @@ class PubSubSource(Source, threading.Thread):
         self.subscribe()
 
     def subscribe(self):
+        mode = self.get_config("subscribe", "first")
         try:
             self.redis.config_set("notify-keyspace-events", "Kls")
             self.pubsub = self.redis.pubsub()
             source = self.get_config("source")
             if type(source) == type([]):
-                channels = ["__keyspace@0__:" + s + ":val" for s in source]
+                if mode == "first":
+                    channels = ["__keyspace@0__:" + source[0] + ":val"]
+                elif mode == "all":
+                    channels = ["__keyspace@0__:" + s + ":val" for s in source]
+                else:
+                    raise KeyError("invalid PubSub subscribe mode")
             elif type(source) == type(""):
                 channels = ["__keyspace@0__:" + source + ":val"]
             self.pubsub.subscribe(channels)
