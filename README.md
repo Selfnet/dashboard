@@ -34,7 +34,7 @@ The website is delivered by the server aswell (using flask). The javascript clas
 
 ## Configuration
 
-On startup, all the json files in conf.d are parsed and merged. The files need to contain valid json (be aware of leftover commas). Startup of the dashboard will fail, if there are merge conflicts (i.e., the same parameter is configured twice in two files, but with different values).
+On startup, all the YAML files in conf.d are parsed and merged. Startup of the dashboard will fail, if there are merge conflicts (i.e., the same parameter is configured twice in two files, but with different values).
 
 For source objects, the software will search for parameters in the corresponding object config first, then in the class defaults, in the global defaults and finally in the hardcoded defaults (if there is one for the given parameter). If a parameter is required, but not configured, an exception will be raised. This scheme allows you for example to configure a default interval for all updates, but override it for a certain class, e.g., to schedule updates for SNMP sources less frequent, to avoid issues with SNMP rate limiting.
 

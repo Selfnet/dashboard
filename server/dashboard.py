@@ -16,18 +16,20 @@ active_sources = []
 if "sources" not in conf:
     raise Exception("no sources configured")
 
-for args in conf["sources"]:
-    try:
-        c = getattr(sources, args["class"])
-        instance = c(conf, args)
-        active_sources.append(instance)
-    except ValueError as e:
-        logging.error(" ".join([
-                type(e).__name__ + ":",
-                str(e)
-            ]))
-        for key, value in args.items():
-            logging.warning("   %s: %s" % (key, value))
+for sourceconfig in conf["sources"]:
+    for classname, args in sourceconfig.items():
+        # should usually be just one
+        try:
+            c = getattr(sources, classname)
+            instance = c(conf, args)
+            active_sources.append(instance)
+        except ValueError as e:
+            logging.error(" ".join([
+                    type(e).__name__ + ":",
+                    str(e)
+                ]))
+            for key, value in args.items():
+                logging.warning("   %s: %s" % (key, value))
 
 
 # start threads

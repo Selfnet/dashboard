@@ -1,5 +1,5 @@
 import os
-import json
+import yaml
 
 
 
@@ -37,7 +37,7 @@ def parse_config():
     for filename in files:
         configfile = os.path.join(path, filename)
         try:
-            c = json.load(open(configfile, "r"))
+            c = yaml.load(open(configfile, "r"))
         except ValueError as e:
             print(filename + ": " + str(e))
             print("{filename}: file ignored".format(filename=filename))
