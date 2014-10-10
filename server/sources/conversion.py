@@ -1,3 +1,4 @@
+import logging
 
 from .base import PubSubSource
 
@@ -5,8 +6,11 @@ from .base import PubSubSource
 
 class Factor(PubSubSource):
     def update(self):
-        value = self.pull(name=self.get_config("source"))
-        value = float(value) * float(self.get_config("factor"))
+        timestamp, value = self.pull(name=self.get_config("source"))[0]
+        if not value:
+            return
+        factor = self.get_config("factor")
+        value = float(value) * float(factor)
         self.push(value)
 
 class OctetsToBps(PubSubSource):
@@ -33,6 +37,14 @@ class OctetsToBps(PubSubSource):
 class Sum(PubSubSource):
     def update(self):
         total = 0
-        for source in self.get_config("source"):
-            total += float(self.pull(name=source))
-        self.push(total)
+        try:
+            for source in self.get_config("source"):
+                timestamp, value = self.pull(name=source)[0]
+                total += float(value)
+            self.push(total)
+        except Exception as e:
+            logging.error(" ".join([
+                type(e).__name__ + ":",
+                str(e),
+                "in Sum for \"" + self.get_config("name") + "\""
+            ]))
