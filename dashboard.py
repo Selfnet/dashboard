@@ -40,17 +40,17 @@ class SourceThreads(object):
         print(str(len(self.active_sources)) + " threads running")
 
 if __name__ == '__main__':
-    threads = SourceThreads()
-    try:
-        threads.read_config()
-    except Exception as e:
-        logging.error(e)
-        sys.exit(20)
-    threads.start()
+    # threads = SourceThreads()
+    # try:
+    #     threads.read_config()
+    # except Exception as e:
+    #     logging.error(e)
+    #     sys.exit(20)
+    # threads.start()
 
     application = Application([
-        (r'/', WebHandler),
         (r'/websocket', WSHandler),
+        (r'/', WebHandler),
     ], debug=True)
     application.listen(5000)
 

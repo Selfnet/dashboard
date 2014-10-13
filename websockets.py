@@ -2,16 +2,18 @@ from tornado.wsgi import WSGIContainer
 from tornado.websocket import WebSocketHandler
 from tornado.web import RequestHandler
 
-import anyjson as json
+import json
 
 class WebHandler(RequestHandler):
     def get(self):
         self.write("This app only handles the /websocket subdirectories. A index.html should be configured statically.")
 
 class WSHandler(WebSocketHandler):
+    def check_origin(self, origin):
+        return True
+
     def open(self):
         print('new connection')
-        self.write_message(json.dumps(dict(output="Hello World")))
 
     def on_message(self, incoming):
         print('message received %s' % incoming)
