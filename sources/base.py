@@ -65,11 +65,12 @@ class Source():
             dbconfig = self.config["database"]
             dbconfig["decode_responses"] = True
         except KeyError:
-            raise KeyError("no database config found")
+            logging.warning("No database config found, falling back to defaults.")
+            dbconfig = {}
         try:
             self.redis = redis.Redis(**dbconfig)
         except Exception as e:
-            logging.error(" ".join([
+            logging.exception(" ".join([
                 type(e).__name__ + ":",
                 str(e),
                 " - could not write to redis database"
@@ -88,7 +89,7 @@ class Source():
             self.redis.lpush(name + ":val", value)
             self.redis.ltrim(name + ":val", 0, length - 1)
         except Exception as e:
-            logging.error(" ".join([
+            logging.exception(" ".join([
                 type(e).__name__ + ":",
                 str(e),
                 " - could not write to redis database"
@@ -153,7 +154,7 @@ class PubSubSource(Source, threading.Thread):
                 channels = ["__keyspace@0__:" + source + ":val"]
             self.pubsub.subscribe(channels)
         except Exception as e:
-            logging.error(" ".join([
+            logging.exception(" ".join([
                 type(e).__name__ + ":",
                 str(e),
                 " - could not subscribe to channels on redis database"

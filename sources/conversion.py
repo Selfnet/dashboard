@@ -66,7 +66,7 @@ class Sum(PubSubSource):
                 total += float(value)
             self.push(total)
         except Exception as e:
-            logging.error(" ".join([
+            logging.exception(" ".join([
                 type(e).__name__ + ":",
                 str(e),
                 "in Sum for \"" + self.get_config("name") + "\""

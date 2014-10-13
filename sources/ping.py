@@ -43,7 +43,7 @@ class Ping(TimedSource):
                 rtt = None
             self.push(rtt)
         except Exception as e:
-            logging.error(" ".join([
+            logging.exception(" ".join([
                 type(e).__name__ + ":",
                 str(e),
                 "in Ping for \"{host}\"".format(host=host)

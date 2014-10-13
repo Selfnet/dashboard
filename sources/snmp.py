@@ -33,7 +33,7 @@ class SNMPGet(TimedSource):
                 value = self.typecast(value)
                 self.push(value)
         except Exception as e:
-            logging.error(" ".join([
+            logging.exception(" ".join([
                 type(e).__name__ + ":",
                 str(e),
                 "in SNMPGet for \"{name}\"".format(name=self.get_config("name"))
@@ -70,7 +70,7 @@ class SNMPWalkSum(TimedSource):
                     total += value
             self.push(total)
         except Exception as e:
-            logging.error(" ".join([
+            logging.exception(" ".join([
                 type(e).__name__ + ":",
                 str(e),
                 "in SNMPWalkSum for \"{name}\"".format(name=self.get_config("name"))

@@ -36,7 +36,7 @@ class Munin(TimedSource):
             value = self.get_value(key, result)
             self.push(value)
         except Exception as e:
-            logging.error(" ".join([
+            logging.exception(" ".join([
                     type(e).__name__ + ":",
                     str(e),
                     "in Munin for \"{name}\"".format(name=self.get_config("name"))

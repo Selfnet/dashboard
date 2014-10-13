@@ -1,8 +1,6 @@
 import os
 import yaml
 
-
-
 # recursively merge dictionaries
 # by Andrew Cooke
 # http://stackoverflow.com/questions/7204805/dictionaries-of-dictionaries-merge
@@ -24,8 +22,6 @@ def merge(a, b, path=None):
             a[key] = b[key]
     return a
 
-
-
 def parse_config():
     "load all files in conf.d, parse and merge them"
     path = os.path.join(os.path.dirname(__file__), "conf.d")
@@ -38,6 +34,8 @@ def parse_config():
         configfile = os.path.join(path, filename)
         try:
             c = yaml.load(open(configfile, "r"))
+            if not c:
+                c = {}
         except ValueError as e:
             print(filename + ": " + str(e))
             print("{filename}: file ignored".format(filename=filename))

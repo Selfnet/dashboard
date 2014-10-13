@@ -25,7 +25,7 @@ class HTTPGet(TimedSource):
             value = self.typecast(out.strip())
             self.push(value)
         except Exception as e:
-            logging.error(" ".join([
+            logging.exception(" ".join([
                 type(e).__name__ + ":",
                 str(e),
                 "in HTTPGet for \"" + url + "\""

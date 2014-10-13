@@ -18,7 +18,7 @@ class Cmd(TimedSource):
             out = self.cmdcall(cmd)
             self.push(out.strip())
         except Exception as e:
-            logging.error(" ".join([
+            logging.exception(" ".join([
                 type(e).__name__ + ":",
                 str(e),
                 "in Cmd for \"{name}\"".format(name=self.get_config("name"))
