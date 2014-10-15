@@ -1,5 +1,3 @@
 redis
-flask
 tornado
-anyjson
 pyaml

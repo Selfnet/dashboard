@@ -9,7 +9,7 @@ This is WORK IN PROGRESS. It's not finished or usable in any way.
 
 ## Description
 
-The daemon spawns threads that fetch data (e.g., via SNMP or HTTP). Every threads works for itself, so they can get out of sync. Some threads trigger their updates in a given interval, or on updates in the redis database. Interval and the data to be aggregated is specified in the config.py file. The builtin flask webserver provides the website and the data to display for the clients.
+The daemon spawns threads that fetch data (e.g., via SNMP or HTTP). Every threads works for itself, so they can get out of sync. Some threads trigger their updates in a given interval, or on updates in the redis database. Interval and the data to be aggregated is specified in the config.py file. The builtin server provides static websites and websockets that push new data to the clients.
 
 ## Dependencies
 
@@ -23,7 +23,7 @@ The daemon spawns threads that fetch data (e.g., via SNMP or HTTP). Every thread
 The server spawns a number of threads, one for each configured data source. The threads run asynchronously and fetch updates in their own interval. The data is then written to the redis key-value store with a value and a timesta
 mp. Some data sources don't run updates in a configured interval, but listen on updates for existing datasets. This comes in handy, whenever you need data in a different format, combine previous values (difference, average, etc.), or combine data from multiple sources.
 
-The website is delivered by the server aswell (using flask). The javascript classes provide an interface that you can use to spawn charts that listen on updates and update automatically. The chart data is provided via websockets. If datasets are updated, the server pushes those updates to the clients using those websockets.
+The website is delivered by a webserver (static files) or the dashboard itself. The javascript classes provide an interface that you can use to spawn charts that listen on updates and update automatically. The chart data is provided via websockets. If datasets are updated, the server pushes those updates to the clients using those websockets.
 
 ## Installation / How To
 
