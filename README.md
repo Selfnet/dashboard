@@ -38,6 +38,36 @@ On startup, all the YAML files in conf.d are parsed and merged. Startup of the d
 
 For source objects, the software will search for parameters in the corresponding object config first, then in the class defaults, in the global defaults and finally in the hardcoded defaults (if there is one for the given parameter). If a parameter is required, but not configured, an exception will be raised. This scheme allows you for example to configure a default interval for all updates, but override it for a certain class, e.g., to schedule updates for SNMP sources less frequent, to avoid issues with SNMP rate limiting.
 
+Here's the class structure for the available sources:
+
+<pre>
+Source
+|-- PubSubSource
+|   |-- Factor
+|   |-- OctetsToBps
+|   `-- Sum
+`-- TimedSource
+    |-- Cmd
+    |-- HTTPGet
+    |-- Munin
+    |-- Ping
+    |-- SNMPGet
+    `-- SNMPWalkSum
+</pre>
+
+The TimedSource classes run every $interval seconds. The PubSubSources update either when their first data source is updated, or when either of the sources is updated.
+
+Here are the possible configuration options. Keep in mind that all options can be defnied in the defaults, class defaults, or for an object itself:
+
+  * Source (base class for all sources)
+    * name: name for the dataset (subclasses might override this, e.g., to write multiple sets)
+    * values: number of values to store in db
+    * typecast: optional, python3 builtin type
+  * TimedSource
+    * interval: number of seconds between updates
+  * PubSubSource
+    * subscribe: run an update when [first (default), all] sources are updated
+
 ## Writing Own Extensions
 
 Writing own data sources is easy. You can simply write classes that inherit from TimedSource (triggers updates with a timer, configured by the "timeout" parameter) or from PubSubSource (triggers updates when a source dataset, configured in the "source" parameter, gets updated). Both are subclasses of Source (all of them in source/base.py) which already provides some helpful functions:
