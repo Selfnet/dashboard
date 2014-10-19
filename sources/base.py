@@ -47,6 +47,12 @@ class Source():
         # last measure
         raise KeyError("config parameter \"{key}\" not configured for {classname}".format(key=key, classname=self.__class__.__name__))
 
+    def get_channels(self):
+        "return all channels that are written by this source"
+        if self.get_config("silent", False):
+            return []
+        return [self.get_config("name")]
+
     def typecast(self, value, default_type=None):
         try:
             type_name = self.get_config("typecast", default_type)

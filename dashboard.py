@@ -3,27 +3,26 @@ import logging
 
 import sources
 import config
+from listener import Listener
 from websockets import WebHandler, WSHandler
 
 from tornado.web import Application, RequestHandler
 from tornado.ioloop import IOLoop
 
+import redis
+
 class SourceThreads(object):
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.active_sources = []
 
-    def read_config(self):
-        self.conf = config.parse_config()
-        if "sources" not in self.conf:
-            raise Exception("no sources configured")
-
     def _initialize(self):
-        for sourceconfig in self.conf["sources"]:
+        for sourceconfig in self.config["sources"]:
             for classname, args in sourceconfig.items():
                 # should usually be just one
                 try:
                     c = getattr(sources, classname)
-                    instance = c(self.conf, args)
+                    instance = c(self.config, args)
                     self.active_sources.append(instance)
                 except ValueError as e:
                     logging.exception(" ".join([
@@ -33,6 +32,12 @@ class SourceThreads(object):
                     for key, value in args.items():
                         logging.warning("   %s: %s" % (key, value))
 
+    def get_channels(self):
+        channels = []
+        for source in self.active_sources:
+            channels += source.get_channels()
+        return set(channels)
+
     def start(self):
         self._initialize()
         for t in self.active_sources:
@@ -40,16 +45,23 @@ class SourceThreads(object):
         print(str(len(self.active_sources)) + " threads running")
 
 if __name__ == '__main__':
-    threads = SourceThreads()
-    try:
-        threads.read_config()
-    except Exception as e:
-        logging.error(e)
-        sys.exit(20)
-    threads.start()
+    # get the configuration
+    conf = config.parse_config()
 
+    # if no sources are configured, don't even try to start threads
+    if "sources" in conf:
+        threads = SourceThreads(config=conf)
+        threads.start()
+    else:
+        logging.error("no sources are configured")
+
+    db_config = conf.get("database", {})
+    channels = threads.get_channels()
+    listener = Listener(db_config, channels)
+
+    # start websockets
     application = Application([
-        (r'/websocket', WSHandler),
+        (r'/websocket', WSHandler, dict(config=conf, listener=listener)),
         (r'/', WebHandler),
     ], debug=True)
     application.listen(5000)
