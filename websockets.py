@@ -33,7 +33,11 @@ class WSHandler(WebSocketHandler):
     def on_message(self, incoming_string):
         logging.debug('message received %s' % incoming_string)
         success = True
-        incoming = json.loads(incoming_string)
+        try:
+            incoming = json.loads(incoming_string)
+        except ValueError:
+            # invalid JSON
+            return
         message = incoming.get("message", None)
         if message == "subscribe":
             channels = incoming.get("channels", [])
