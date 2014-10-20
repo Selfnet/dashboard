@@ -14,7 +14,7 @@ def countersize(i):
         n += 1
 
 def counter_difference(this, last):
-    if this > last:
+    if this >= last:
         return this - last
     else:
         # counter overflow
