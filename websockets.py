@@ -23,32 +23,43 @@ class WSHandler(WebSocketHandler):
         response = json.dumps({
             "message": "update",
             "data": {
-                "channel": channel,
-                "timestamp": timestamp,
-                "value": value,
+                channel: {
+                    timestamp: value,
+                },
             },
         })
         self.write_message(response)
 
     def on_message(self, incoming_string):
         logging.debug('message received %s' % incoming_string)
-        success = True
         try:
             incoming = json.loads(incoming_string)
         except ValueError:
             # invalid JSON
             return
         message = incoming.get("message", None)
+        data = incoming.get("data", {})
         if message == "subscribe":
-            channels = incoming.get("channels", [])
+            channels = data
             if type(channels) == type(""):
                 channels = [channels]
             self.listener.subscribe(self, channels)
-        response = json.dumps({
-            "message": "subscribe",
-            "data": success,
-        })
-        self.write_message(response)
+            response = json.dumps({
+                "message": "subscribe",
+                "data": True,
+            })
+            self.write_message(response)
+        elif message == "history":
+            response_dict = {
+                "message": "history",
+                "data": {},
+            }
+            for channel in data.keys():
+                ts_val_pairs = self.listener.history(channel, length=data[channel])
+                if ts_val_pairs:
+                    response_dict["data"][channel] = ts_val_pairs
+            response = json.dumps(response_dict)
+            self.write_message(response)
 
     def on_close(self):
         logging.debug('connection closed')

@@ -14,11 +14,13 @@ class Listener(threading.Thread):
         self.start()
 
     def subscribe(self, handler, channels):
-        # TODO check if channels are configured and not silent
         self.subscribers_lock.acquire()
         for channel in channels:
+            if channel not in self.channels:
+                continue
             if channel in self.subscribers:
-                self.subscribers.get(channel).append(handler)
+                if handler not in self.subscribers.get(channel):
+                    self.subscribers.get(channel).append(handler)
             else:
                 self.subscribers[channel] = [handler]
         self.subscribers_lock.release()
@@ -31,8 +33,6 @@ class Listener(threading.Thread):
         self.subscribers_lock.release()
 
     def update(self, channel):
-        # TODO remove
-        logging.debug("updating channel " + channel)
         timestamp = self.redis.lindex(channel + ":ts", 0)
         value = self.redis.lindex(channel + ":val", 0)
         self.subscribers_lock.acquire()
@@ -40,6 +40,15 @@ class Listener(threading.Thread):
         for handler in handlers:
             handler.update(channel, timestamp, value)
         self.subscribers_lock.release()
+
+    def history(self, channel, length=None):
+        if channel not in self.channels:
+            return
+        if type(length) != int or length <= 0:
+            length = 1080  # default: 3 hours of data at 10sec intervals
+        timestamps = self.redis.lrange(channel + ":ts", 0, length-1)
+        values = self.redis.lrange(channel + ":val", 0, length-1)
+        return dict(zip(timestamps, values))
 
     def run(self):
         while True:
