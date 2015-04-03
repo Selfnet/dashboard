@@ -2,6 +2,7 @@
 
 # dashboard
 *.log
+conf.d
 
 # C extensions
 *.so
