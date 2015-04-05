@@ -1,0 +1,48 @@
+<!doctype html>
+<meta charset='utf-8'>
+<title>Dashboard Demo</title>
+<link href="lib/c3.css" rel="stylesheet" type="text/css">
+</head>
+
+<div id='chart' style="width:600px;"></div>
+
+<script src="lib/jquery-1.11.0.min.js" type="text/javascript"></script>
+<script src="lib/d3-3.5.0.min.js" type="text/javascript"></script>
+<script src="lib/c3.min.js" type="text/javascript"></script>
+<script src="dashboard.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+testchart = c3.generate({
+    data: {
+        xs: {
+            'ping google': 'ping google-ts',
+        },
+        xFormat: '$H:$M',
+        columns: [
+            ['ping google-ts'],
+            ['ping google'],
+        ],
+        type: 'line'
+    },
+    axis: {
+        x: {
+            type: 'timeseries',
+            tick: {
+                format: '%H:%M'
+            }
+        }
+    }
+});
+
+dashboard = new Dashboard();
+
+dashboard.addChart({
+    chart: testchart,
+    channels: {
+        "ping google": "ping:google-dns:ipv4",
+    },
+    length: 10
+});
+
+dashboard.run("ws://p21423.probes.atlas.ripe.net:5000/websocket");
+</script>
