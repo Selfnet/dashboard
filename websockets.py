@@ -38,10 +38,10 @@ class WSHandler(WebSocketHandler):
             # invalid JSON
             return
         message = incoming.get("message", None)
-        data = incoming.get("data", {})
+        data = incoming.get("data", [])
         if message == "subscribe":
             channels = data
-            if type(channels) == type(""):
+            if isinstance(channels, str):
                 channels = [channels]
             self.listener.subscribe(self, channels)
             response = json.dumps({
