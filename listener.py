@@ -57,8 +57,8 @@ class Listener(threading.Thread):
             pubsub.subscribe(channels)
             if pubsub:
                 for item in pubsub.listen():
-                    if item["type"] == "message" and item["data"] == "lpush" and item["channel"].endswith(":val"):
+                    if item["type"] == "message" and item["data"] == b"lpush" and item["channel"].endswith(b":val"):
                         # remove the __keyspace@0__: at the beginning and :val at the end
-                        channel = ":".join(item["channel"].split(":")[1:-1])
+                        channel = ":".join(str(item["channel"]).split(":")[1:-1])
                         self.update(channel)
             time.sleep(1)
