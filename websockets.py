@@ -20,6 +20,10 @@ class WSHandler(WebSocketHandler):
         logging.debug('new connection')
 
     def update(self, channel, timestamp, value):
+        # fix different redis behaviors
+        channel = channel.decode("utf-8") if isinstance(channel, bytes) else str(channel)
+        timestamp = timestamp.decode("utf-8") if isinstance(timestamp, bytes) else str(channel)
+        value = value.decode("utf-8") if isinstance(value, bytes) else str(value)
         response = json.dumps({
             "message": "update",
             "data": {
