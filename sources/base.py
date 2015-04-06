@@ -117,16 +117,19 @@ class TimedSource(Source, threading.Thread):
         threading.Thread.__init__(self)
         self.running = threading.Event()
         self.running.set()
+        self.interval = self.get_config("interval", 10)
 
     def run(self):
-        while self.running.is_set():
-            interval = self.get_config("interval", 10)
+        self.timer_loop()
+
+    def timer_loop(self):
+        if self.running.is_set():
             self.timer = threading.Timer(
-                interval,
-                self.poll,
+                self.interval,
+                self.timer_loop,
             )
             self.timer.start()
-            self.timer.join()
+            self.poll()
 
     def cancel(self):
         self.running.clear()
