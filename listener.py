@@ -13,10 +13,21 @@ class Listener(threading.Thread):
         self.subscribers_lock = threading.Lock()
         self.start()
 
+    def _get_channel_length(self, channel):
+        for source, channels in self.channels.items():
+            if channel in channels:
+                source.get_config("values", 1080)
+
+    def _channel_allowed(self, channel):
+        for channels in self.channels.values():
+            if channel in channels:
+                return True
+        return False
+
     def subscribe(self, handler, channels):
         self.subscribers_lock.acquire()
         for channel in channels:
-            if channel not in self.channels:
+            if not self._channel_allowed(channel):
                 continue
             if channel in self.subscribers:
                 if handler not in self.subscribers.get(channel):
@@ -42,8 +53,6 @@ class Listener(threading.Thread):
         self.subscribers_lock.release()
 
     def history(self, channel, length=None):
-        if channel not in self.channels:
-            return
         if type(length) != int or length <= 0:
             length = 1080  # default: 3 hours of data at 10sec intervals
         timestamps = self.redis.lrange(channel + ":ts", 0, length-1)
@@ -53,7 +62,11 @@ class Listener(threading.Thread):
     def run(self):
         while True:
             pubsub = self.redis.pubsub()
-            channels = ["__keyspace@0__:" + channel + ":val" for channel in self.channels]
+            channels = set()
+            for channels_per_source in self.channels.values():
+                for channel in channels_per_source:
+                    channels.add(channel)
+            channels = ["__keyspace@0__:" + channel + ":val" for channel in channels]
             pubsub.subscribe(channels)
             if pubsub:
                 for item in pubsub.listen():

@@ -33,10 +33,10 @@ class SourceThreads(object):
                         logging.warning("   %s: %s" % (key, value))
 
     def get_channels(self):
-        channels = []
+        channels = {}
         for source in self.active_sources:
-            channels += source.get_channels()
-        return set(channels)
+            channels[source] = source.get_channels()
+        return channels
 
     def start(self):
         self._initialize()

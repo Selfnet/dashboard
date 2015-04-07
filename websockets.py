@@ -46,22 +46,42 @@ class WSHandler(WebSocketHandler):
         if message == "subscribe":
             channels = data
             if isinstance(channels, str):
-                channels = [channels]
-            self.listener.subscribe(self, channels)
+                self.listener.subscribe(self, [channels])
+            elif isinstance(channels, list):
+                self.listener.subscribe(self, channels)
+            else:
+                # TODO log malformed request
+                return
             response = json.dumps({
                 "message": "subscribe",
                 "data": True,
             })
             self.write_message(response)
         elif message == "history":
+            requested = data
+            channels = {}
+            # "data": "some channel"
+            if isinstance(requested, str):
+                channels[requested] = self.listener.history(requested)
+            # "data": ["some channel", ... ]
+            elif isinstance(requested, list):
+                for channel in requested:
+                    if not isinstance(channel, str):
+                        # TODO log malformed request
+                        return
+                    channels[channel] = self.listener.history(channel)
+            # "data": {"some channel": {"length": "1337"}, ...}
+            elif isinstance(requested, dict):
+                for channel, settings in requested.items():
+                    if (not isinstance(channel, str)):
+                        # TODO log malformed request
+                        return
+                    length = settings.get("length")
+                    channels[channel] = self.listener.history(channel, length)
             response_dict = {
                 "message": "history",
-                "data": {},
+                "data": channels,
             }
-            for channel in data.keys():
-                ts_val_pairs = self.listener.history(channel, length=data[channel])
-                if ts_val_pairs:
-                    response_dict["data"][channel] = ts_val_pairs
             response = json.dumps(response_dict)
             self.write_message(response)
 
