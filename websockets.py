@@ -77,7 +77,10 @@ class WSHandler(WebSocketHandler):
                         # TODO log malformed request
                         return
                     length = settings.get("length")
+                    length = int(length) if length != None else None
                     channels[channel] = self.listener.history(channel, length)
+            else:
+                return
             response_dict = {
                 "message": "history",
                 "data": channels,
