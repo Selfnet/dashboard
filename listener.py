@@ -44,8 +44,8 @@ class Listener(threading.Thread):
         self.subscribers_lock.release()
 
     def update(self, channel):
-        timestamp = self.redis.lindex(channel + ":ts", 0)
-        value = self.redis.lindex(channel + ":val", 0)
+        timestamp = self.redis.lindex(channel + ":ts", 0).decode("utf-8")
+        value = self.redis.lindex(channel + ":val", 0).decode("utf-8")
         self.subscribers_lock.acquire()
         handlers = self.subscribers.get(channel, [])
         for handler in handlers:
@@ -55,8 +55,8 @@ class Listener(threading.Thread):
     def history(self, channel, length=None):
         if type(length) != int or length <= 0:
             length = 1080  # default: 3 hours of data at 10sec intervals
-        timestamps = self.redis.lrange(channel + ":ts", 0, length-1)
-        values = self.redis.lrange(channel + ":val", 0, length-1)
+        timestamps = [t.decode("utf-8") for t in self.redis.lrange(channel + ":ts", 0, length-1)]
+        values = [v.decode("utf-8") for v in self.redis.lrange(channel + ":val", 0, length-1)]
         return dict(zip(timestamps, values))
 
     def run(self):
@@ -72,6 +72,6 @@ class Listener(threading.Thread):
                 for item in pubsub.listen():
                     if item["type"] == "message" and item["data"] == b"lpush" and item["channel"].endswith(b":val"):
                         # remove the __keyspace@0__: at the beginning and :val at the end
-                        channel = ":".join(str(item["channel"]).split(":")[1:-1])
+                        channel = ":".join(item["channel"].decode("utf-8").split(":")[1:-1])
                         self.update(channel)
             time.sleep(1)

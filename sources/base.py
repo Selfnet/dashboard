@@ -69,7 +69,6 @@ class Source():
     def connect_db(self):
         try:
             dbconfig = self.config["database"]
-            dbconfig["decode_responses"] = True
         except KeyError:
             logging.warning("No database config found, falling back to defaults.")
             dbconfig = {}
