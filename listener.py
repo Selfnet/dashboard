@@ -2,6 +2,7 @@ import threading
 import redis
 import time
 import logging
+from sources.base import Source
 
 class Listener(threading.Thread):
     def __init__(self, db_config, channels):
@@ -16,7 +17,8 @@ class Listener(threading.Thread):
     def _get_channel_length(self, channel):
         for source, channels in self.channels.items():
             if channel in channels:
-                source.get_config("values", 1080)
+                return source.get_config("values", Source.DEFAULT_LENGTH)
+        return Source.DEFAULT_LENGTH
 
     def _channel_allowed(self, channel):
         for channels in self.channels.values():
@@ -53,8 +55,8 @@ class Listener(threading.Thread):
         self.subscribers_lock.release()
 
     def history(self, channel, length=None):
-        if type(length) != int or length <= 0:
-            length = 1080  # default: 3 hours of data at 10sec intervals
+        if (not isinstance(length, int)) or length <= 0:
+            length = self._get_channel_length(channel)
         timestamps = [t.decode("utf-8") for t in self.redis.lrange(channel + ":ts", 0, length-1)]
         values = [v.decode("utf-8") for v in self.redis.lrange(channel + ":val", 0, length-1)]
         return dict(zip(timestamps, values))

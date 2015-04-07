@@ -8,6 +8,8 @@ import redis
 
 class Source():
 
+    DEFAULT_LENGTH = 1080
+
     def __init__(self, config, objectconfig):
         # settings and parameters
         self.config = config
@@ -87,7 +89,7 @@ class Source():
         if not timestamp:
             timestamp = time.time()
         value = self.typecast(value)
-        length = self.get_config("values", 1080)
+        length = self.get_config("values", Source.DEFAULT_LENGTH)
         try:
             self.redis.lpush(name + ":ts", timestamp)
             self.redis.ltrim(name + ":ts", 0, length - 1)
