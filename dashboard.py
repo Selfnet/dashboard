@@ -1,4 +1,3 @@
-import sys
 import logging
 
 import sources
@@ -6,10 +5,10 @@ import config
 from listener import Listener
 from websockets import WebHandler, WSHandler
 
-from tornado.web import Application, RequestHandler
+from tornado.web import Application
 from tornado.ioloop import IOLoop
 
-import redis
+
 
 class SourceThreads(object):
     def __init__(self, config):

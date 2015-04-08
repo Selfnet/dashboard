@@ -1,4 +1,3 @@
-from tornado.wsgi import WSGIContainer
 from tornado.websocket import WebSocketHandler
 from tornado.web import RequestHandler
 import logging
