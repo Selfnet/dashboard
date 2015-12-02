@@ -5,4 +5,5 @@ from .munin import *
 from .ping import *
 from .cmd import *
 from .printer import *
+from .file import *
 from .conversion import *
