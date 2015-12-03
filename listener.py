@@ -2,7 +2,9 @@ import threading
 import redis
 import time
 import logging
-from sources.base import Source
+from modules.base import Source
+
+
 
 class Listener(threading.Thread):
     def __init__(self, db_config, channels):
