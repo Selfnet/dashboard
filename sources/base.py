@@ -65,7 +65,7 @@ class Source():
             if not isinstance(cast, type):
                 raise ValueError("not a type")
         except ValueError:
-            raise Exception("HTTPGet: invalid type cast (not a built-in type)")
+            raise Exception("invalid type cast (\"{type_name}\" not a built-in type) for {classname}".format(type_name=type_name, classname=self.__class__.__name__))
         return cast(value)
 
     def connect_db(self):
@@ -177,6 +177,6 @@ class PubSubSource(Source, threading.Thread):
         while True:
             if self.pubsub:
                 for item in self.pubsub.listen():
-                    if item["type"] == "message" and item["data"] == "lpush":
+                    if item["type"] == "message" and item["data"] == b"lpush":
                         self.update()
             time.sleep(1)
