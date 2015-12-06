@@ -1,7 +1,7 @@
 import socket
 import logging
 
-from .base import TimedSource
+from .base.sources import TimedSource
 
 
 

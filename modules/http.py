@@ -1,7 +1,7 @@
 import logging
 import subprocess # ever tried urllib in python3 on debian stable?
 
-from .base import TimedSource
+from .base.sources import TimedSource
 
 
 

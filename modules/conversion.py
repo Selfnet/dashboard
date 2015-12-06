@@ -1,6 +1,6 @@
 import logging
 
-from .base import PubSubSource
+from .base.sources import PubSubSource
 
 
 

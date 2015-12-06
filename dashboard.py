@@ -3,12 +3,6 @@ import logging
 
 import config
 from threadmanagement import WorkerThreads
-from listener import Listener
-from websockets import WebHandler, WSHandler
-
-from tornado.web import Application
-from tornado.ioloop import IOLoop
-
 
 
 if __name__ == '__main__':

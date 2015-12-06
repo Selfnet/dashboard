@@ -3,7 +3,6 @@ import logging
 import modules
 
 
-
 class WorkerThreads(object):
     def __init__(self, config):
         self.config = config
