@@ -28,7 +28,7 @@ def counter_difference(this, last):
 
 
 class Factor(PubSubSource):
-    def update(self):
+    def update(self, triggered_by):
         timestamp, value = self.pull(name=self.get_config("source"))[0]
         if not value:
             return
@@ -37,7 +37,7 @@ class Factor(PubSubSource):
         self.push(value)
 
 class OctetsToBps(PubSubSource):
-    def update(self):
+    def update(self, triggered_by):
         sources = self.get_config("source")
         if type(sources) == type(""):
             sources = [sources]
@@ -58,7 +58,7 @@ class OctetsToBps(PubSubSource):
         self.push(total_bps)
 
 class Sum(PubSubSource):
-    def update(self):
+    def update(self, triggered_by):
         total = 0
         try:
             for source in self.get_config("source"):

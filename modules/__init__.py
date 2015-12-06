@@ -7,3 +7,4 @@ from .cmd import *
 from .printer import *
 from .file import *
 from .conversion import *
+from .websocket import Websocket

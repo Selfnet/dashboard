@@ -4,19 +4,19 @@ import modules
 
 
 
-class SourceThreads(object):
+class WorkerThreads(object):
     def __init__(self, config):
         self.config = config
-        self.active_sources = []
+        self.active_workers = []
 
     def _initialize(self):
-        for sourceconfig in self.config["sources"]:
-            for classname, args in sourceconfig.items():
+        for workerconfig in self.config["workers"]:
+            for classname, args in workerconfig.items():
                 # should usually be just one
                 try:
                     c = getattr(modules, classname)
                     instance = c(self.config, args)
-                    self.active_sources.append(instance)
+                    self.active_workers.append(instance)
                 except ValueError as e:
                     logging.exception(" ".join([
                             type(e).__name__ + ":",
@@ -27,13 +27,13 @@ class SourceThreads(object):
 
     def get_channels(self):
         channels = {}
-        for source in self.active_sources:
-            channels[source] = source.get_channels()
+        for worker in self.active_workers:
+            channels[worker] = worker.get_channels()
         return channels
 
     def start(self):
         self._initialize()
-        for t in self.active_sources:
+        for t in self.active_workers:
             t.start()
         # TODO logging
-        print(str(len(self.active_sources)) + " threads running")
+        logging.info(str(len(self.active_workers)) + " workers running")

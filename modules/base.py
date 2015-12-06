@@ -147,8 +147,8 @@ class PubSubSource(Source, threading.Thread):
         self.pubsub = None
         self.subscribe()
 
-    def subscribe(self):
-        mode = self.get_config("subscribe", "first")
+    def subscribe(self, mode="first"):
+        mode = self.get_config("subscribe", mode)
         try:
             self.redis.config_set("notify-keyspace-events", "Kls")
             self.pubsub = self.redis.pubsub()
@@ -178,5 +178,6 @@ class PubSubSource(Source, threading.Thread):
             if self.pubsub:
                 for item in self.pubsub.listen():
                     if item["type"] == "message" and item["data"] == b"lpush":
-                        self.update()
+                        channel = ":".join(item["channel"].decode("utf-8").split(":")[1:-1])
+                        self.update(triggered_by=channel)
             time.sleep(1)
