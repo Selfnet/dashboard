@@ -103,6 +103,11 @@ class Source():
             ]))
 
     def pull(self, n=1, name=None):
+        """
+        Pull timestamp-value-pairs from DB. By default just one,
+        if n=0 all stored values. By default the configured name
+        of the Source is used, another name can be set optionally.
+        """
         if not name:
             name = self.get_config("name")
         ts = self.redis.lrange(name + ":ts", 0, n-1)

@@ -4,9 +4,6 @@ import redis
 import time
 import json
 from .sources import Source
-from tornado.ioloop import IOLoop
-from tornado.websocket import WebSocketHandler
-from tornado.web import Application, RequestHandler
 
 
 class Listener(threading.Thread):
@@ -15,6 +12,7 @@ class Listener(threading.Thread):
         self.redis = redis.Redis(**db_config)
         self.redis.config_set("notify-keyspace-events", "Kls")
         self.pubsub = None
+        # TODO move all of this "allowed channel" stuff back to websocket handler
         self.channels = channels
         self.subscribers = {}
         self.subscribers_lock = threading.Lock()
@@ -64,9 +62,8 @@ class Listener(threading.Thread):
             handler.update(channel, timestamp, value)
         self.subscribers_lock.release()
 
-    def history(self, channel, length=None):
-        if (not isinstance(length, int)) or length <= 0:
-            length = self._get_channel_length(channel)
+    def history(self, channel, length=0):
+        # DEPRECATED, TODO: use pull(n=0, name=channel) in websocket
         timestamps = [t.decode("utf-8") for t in self.redis.lrange(channel + ":ts", 0, length-1)]
         values = [v.decode("utf-8") for v in self.redis.lrange(channel + ":val", 0, length-1)]
         return dict(zip(timestamps, values))
