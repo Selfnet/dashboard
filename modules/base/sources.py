@@ -72,7 +72,7 @@ class Source():
         try:
             dbconfig = self.config["database"]
         except KeyError:
-            logging.warning("No database config found, falling back to defaults.")
+            logging.debug("No database config found, falling back to defaults.")
             dbconfig = {}
         try:
             self.redis = redis.Redis(**dbconfig)
