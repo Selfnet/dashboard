@@ -3,8 +3,7 @@ import threading
 import redis
 import time
 import json
-from .base.sources import Source, PubSubSource
-from .base.listener import Listener
+from .base.sources import Source, Listener
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
 from tornado.web import Application, RequestHandler
@@ -44,9 +43,10 @@ class WSHandler(WebSocketHandler):
         if message == "subscribe":
             channels = data
             if isinstance(channels, str):
-                self.listener.subscribe(self, [channels])
+                self.listener.subscribe(channels, self.update)
             elif isinstance(channels, list):
-                self.listener.subscribe(self, channels)
+                for channel in channels:
+                    self.listener.subscribe(channel, self.update)
             else:
                 # TODO log malformed request
                 return
@@ -87,28 +87,20 @@ class WSHandler(WebSocketHandler):
             self.write_message(response)
 
     def on_close(self):
-        logging.debug('connection closed')
-        self.listener.unsubscribe(self)
-
+        logging.debug('websocket connection closed')
+        self.listener.unsubscribe(self.update)
 
 
 class Websocket(Source, threading.Thread):
 
-    def __init__(self, config, objectconfig):
-        super().__init__(config, objectconfig)
+    def __init__(self, config, objectconfig, storage):
+        super().__init__(config, objectconfig, storage)
         threading.Thread.__init__(self)
 
     def get_channels(self):
         return list()
 
     def run(self):
-        # if no sources are configured, don't even try to start threads
-        try:
-            dbconfig = self.config["database"]
-        except KeyError:
-            logging.warning("No database config found, falling back to defaults.")
-            dbconfig = {}
-
         permit = self.get_config("permit", "sources")
         addr   = self.get_config("address", "/websocket")
         port   = self.get_config("port", 5000)
@@ -125,7 +117,8 @@ class Websocket(Source, threading.Thread):
         if not channels:
             logging.warning("no websocket sources defined - allowing subscription for all channels")
 
-        listener = Listener(dbconfig, channels)
+        listener = Listener(self.config, self.objectconfig, self.storage)
+        listener.start()
 
         # start websockets
         application = Application([

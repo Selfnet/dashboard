@@ -22,6 +22,11 @@ class Munin(TimedSource):
 
         try:
             s = socket.create_connection((host, port), timeout)
+        except (socket.gaierror, OSError) as e:
+            logging.info("Munin connection failed: {exception}".format(exception=str(e)))
+            return
+
+        try:
             s.settimeout(timeout)
             cmd = ("fetch " + module + "\nquit").encode("ascii")
             s.send(cmd)
@@ -36,7 +41,7 @@ class Munin(TimedSource):
             value = self.get_value(key, result)
             self.push(value)
         except Exception as e:
-            logging.exception(" ".join([
+            logging.info(" ".join([
                     type(e).__name__ + ":",
                     str(e),
                     "in Munin for \"{name}\"".format(name=self.get_config("name"))

@@ -4,8 +4,9 @@ import modules
 
 
 class WorkerThreads(object):
-    def __init__(self, config):
+    def __init__(self, config, storage):
         self.config = config
+        self.storage = storage
         self.active_workers = []
 
     def _initialize(self):
@@ -14,7 +15,7 @@ class WorkerThreads(object):
                 # should usually be just one
                 try:
                     c = getattr(modules, classname)
-                    instance = c(self.config, args)
+                    instance = c(self.config, args, self.storage)
                     self.active_workers.append(instance)
                 except ValueError as e:
                     logging.exception(" ".join([

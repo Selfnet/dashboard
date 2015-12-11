@@ -2,7 +2,8 @@ import threading
 import logging
 import builtins
 import time
-import redis
+from queue import Queue
+from threading import Lock, Event
 
 
 
@@ -10,11 +11,11 @@ class Source():
 
     DEFAULT_LENGTH = 1080
 
-    def __init__(self, config, objectconfig):
+    def __init__(self, config, objectconfig, storage):
         # settings and parameters
         self.config = config
         self.objectconfig = objectconfig
-        self.connect_db()
+        self.storage = storage
 
     def get_config(self, key, default=None):
         # priority 1: value is configured for this object
@@ -68,21 +69,6 @@ class Source():
             raise Exception("invalid type cast (\"{type_name}\" not a built-in type) for {classname}".format(type_name=type_name, classname=self.__class__.__name__))
         return cast(value)
 
-    def connect_db(self):
-        try:
-            dbconfig = self.config["database"]
-        except KeyError:
-            logging.debug("No database config found, falling back to defaults.")
-            dbconfig = {}
-        try:
-            self.redis = redis.Redis(**dbconfig)
-        except Exception as e:
-            logging.exception(" ".join([
-                type(e).__name__ + ":",
-                str(e),
-                " - could not write to redis database"
-            ]))
-
     def push(self, value, timestamp=None, name=None):
         if not name:
             name = self.get_config("name")
@@ -90,17 +76,7 @@ class Source():
             timestamp = time.time()
         value = self.typecast(value)
         length = self.get_config("values", Source.DEFAULT_LENGTH)
-        try:
-            self.redis.lpush(name + ":ts", timestamp)
-            self.redis.ltrim(name + ":ts", 0, length - 1)
-            self.redis.lpush(name + ":val", value)
-            self.redis.ltrim(name + ":val", 0, length - 1)
-        except Exception as e:
-            logging.exception(" ".join([
-                type(e).__name__ + ":",
-                str(e),
-                " - could not write to redis database"
-            ]))
+        self.storage.put(name, timestamp, value, length)
 
     def pull(self, n=1, name=None):
         """
@@ -110,16 +86,14 @@ class Source():
         """
         if not name:
             name = self.get_config("name")
-        ts = self.redis.lrange(name + ":ts", 0, n-1)
-        val = self.redis.lrange(name + ":val", 0, n-1)
-        return list(zip(ts, val))
+        return self.storage.get(name, n)
 
 
 
 class TimedSource(Source, threading.Thread):
 
-    def __init__(self, config, objectconfig):
-        super(TimedSource, self).__init__(config, objectconfig)
+    def __init__(self, config, objectconfig, storage):
+        super(TimedSource, self).__init__(config, objectconfig, storage)
         threading.Thread.__init__(self)
         self.running = threading.Event()
         self.running.set()
@@ -146,43 +120,84 @@ class TimedSource(Source, threading.Thread):
 
 class PubSubSource(Source, threading.Thread):
 
-    def __init__(self, config, objectconfig):
-        super(PubSubSource, self).__init__(config, objectconfig)
+    def __init__(self, config, objectconfig, storage):
+        super(PubSubSource, self).__init__(config, objectconfig, storage)
         threading.Thread.__init__(self)
-        self.pubsub = None
+        self.incoming = Queue()
+        self.running = Event()
+        self.running.set()
         self.subscribe()
 
     def subscribe(self, mode="first"):
         mode = self.get_config("subscribe", mode)
         try:
-            self.redis.config_set("notify-keyspace-events", "Kls")
-            self.pubsub = self.redis.pubsub()
             source = self.get_config("source")
             if type(source) == type([]):
                 if mode == "first":
-                    channels = ["__keyspace@0__:" + source[0] + ":val"]
+                    channels = [source[0]]
                 elif mode == "all":
-                    channels = ["__keyspace@0__:" + s + ":val" for s in source]
+                    channels = [source]
                 else:
                     raise KeyError("invalid PubSub subscribe mode")
             elif type(source) == type(""):
-                channels = ["__keyspace@0__:" + source + ":val"]
-            self.pubsub.subscribe(channels)
+                channels = [source]
+            for channel in channels:
+                self.storage.subscribe(channel, self.callback)
         except Exception as e:
             logging.exception(" ".join([
                 type(e).__name__ + ":",
                 str(e),
-                " - could not subscribe to channels on redis database"
+                " - could not subscribe to channels"
             ]))
 
+    def callback(self, name, timestamp, value):
+        self.incoming.put((name, timestamp, value))
+
     def cancel(self):
-        self.pubsub.close()
+        self.running.clear()
 
     def run(self):
-        while True:
-            if self.pubsub:
-                for item in self.pubsub.listen():
-                    if item["type"] == "message" and item["data"] == b"lpush":
-                        channel = ":".join(item["channel"].decode("utf-8").split(":")[1:-1])
-                        self.update(triggered_by=channel)
-            time.sleep(1)
+        while self.running.is_set():
+            name, timestamp, value = self.incoming.get()
+            self.update(name, timestamp, value)
+
+
+class Listener(Source, threading.Thread):
+
+    def __init__(self, config, objectconfig, storage):
+        super(Listener, self).__init__(config, objectconfig, storage)
+        threading.Thread.__init__(self)
+        self.incoming = Queue()
+        self.callbacks = {}
+        self.callbacks_lock = Lock()
+        self.running = Event()
+        self.running.set()
+
+    def subscribe(self, channel, callback):
+        with self.callbacks_lock:
+            try:
+                self.callbacks[channel].add(callback)
+            except KeyError:
+                self.callbacks[channel] = set([callback])
+        self.storage.subscribe(channel, self.callback)
+
+    def unsubscribe(self, callback):
+        with self.callbacks_lock:
+            for channel in self.callbacks.keys():
+                self.callbacks[channel].discard(callback)
+                if len(self.callbacks[channel]) == 0:
+                    self.storage.unsubscribe(self.callback, name=channel)
+
+    def callback(self, name, timestamp, value):
+        self.incoming.put((name, timestamp, value))
+
+    def cancel(self):
+        self.running.clear()
+
+    def run(self):
+        while self.running.is_set():
+            name, timestamp, value = self.incoming.get()
+            with self.callbacks_lock:
+                if name in self.callbacks.keys():
+                    for callback in self.callbacks[name]:
+                        callback(name, timestamp, value)
