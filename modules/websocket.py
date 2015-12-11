@@ -1,6 +1,5 @@
 import logging
 import threading
-import redis
 import time
 import json
 from .base.sources import Source, Listener

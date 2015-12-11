@@ -9,19 +9,16 @@ This is WORK IN PROGRESS. It's not finished or usable in any way.
 
 ## Description
 
-The daemon spawns threads that fetch data (e.g., via SNMP or HTTP). Every threads works for itself, so they can get out of sync. Some threads trigger their updates in a given interval, or on updates in the redis database. Interval and the data to be aggregated is specified in the config.py file. The builtin server provides static websites and websockets that push new data to the clients.
+The daemon spawns threads that fetch data (e.g., via SNMP or HTTP). Every threads works for itself, so they can get out of sync. Some threads trigger their updates in a given interval, or on updates in the database. Interval and the data to be aggregated is specified in the config.py file. The builtin server provides static websites and websockets that push new data to the clients.
 
 ## Dependencies
 
   * python3
-  * redis-server (version >= 2.8 for PubSub features)
-  * python3-redis
   * optional: snmpget, snmpbulkwalk, ping, curl
 
 ## How it works
 
-The server spawns a number of threads, one for each configured data source. The threads run asynchronously and fetch updates in their own interval. The data is then written to the redis key-value store with a value and a timesta
-mp. Some data sources don't run updates in a configured interval, but listen on updates for existing datasets. This comes in handy, whenever you need data in a different format, combine previous values (difference, average, etc.), or combine data from multiple sources.
+The server spawns a number of threads, one for each configured data source. The threads run asynchronously and fetch updates in their own interval. The data is then written to the key-value store with a value and a timestamp. Some data sources don't run updates in a configured interval, but listen on updates for existing datasets. This comes in handy, whenever you need data in a different format, combine previous values (difference, average, etc.), or combine data from multiple sources.
 
 The website is delivered by a webserver (static files) or the dashboard itself. The javascript classes provide an interface that you can use to spawn charts that listen on updates and update automatically. The chart data is provided via websockets. If datasets are updated, the server pushes those updates to the clients using those websockets.
 
@@ -74,6 +71,6 @@ Writing own data sources is easy. You can simply write classes that inherit from
 
   * .poll(self) for TimedSource and .update(self) for PubSubSource - create this to do whatever your source needs to do
   * .get_config(name, default=None) - returns a configured value, or the default, or raises an AttributeError
-  * .push(value, name=None, timestamp=None) - write a time-value pair to the database, default name comes from the configuration, default timestamp is the current time, values will be typecastet to "type" (from the builtins, default is "str", since redis stores values as strings anyway)
+  * .push(value, name=None, timestamp=None) - write a time-value pair to the database, default name comes from the configuration, default timestamp is the current time, values will be typecastet to "type" (if set).
   * .pull(n=1, name=None) - pull time-value pairs from the db, default is one pair (the most recent) from the configured name, but you could also pull the last 10 values for the set "foo"
   * .typecast(value, default_type=None) - typecast a value to some built-in type
