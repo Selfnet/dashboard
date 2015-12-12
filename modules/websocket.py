@@ -1,11 +1,53 @@
 import logging
-import threading
 import time
 import json
-from .base.sources import Source, Listener
+from .base.sources import Source
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
 from tornado.web import Application, RequestHandler
+from queue import Queue
+from threading import Thread, Lock, Event
+
+
+class Listener(Source, Thread):
+
+    def __init__(self, config, objectconfig, storage):
+        super(Listener, self).__init__(config, objectconfig, storage)
+        Thread.__init__(self)
+        self.incoming = Queue()
+        self.callbacks = {}
+        self.callbacks_lock = Lock()
+        self.running = Event()
+        self.running.set()
+
+    def subscribe(self, channel, callback):
+        with self.callbacks_lock:
+            try:
+                self.callbacks[channel].add(callback)
+            except KeyError:
+                self.callbacks[channel] = set([callback])
+        self.storage.subscribe(channel, self.callback)
+
+    def unsubscribe(self, callback):
+        with self.callbacks_lock:
+            for channel in self.callbacks.keys():
+                self.callbacks[channel].discard(callback)
+                if len(self.callbacks[channel]) == 0:
+                    self.storage.unsubscribe(self.callback, name=channel)
+
+    def callback(self, name, timestamp, value):
+        self.incoming.put((name, timestamp, value))
+
+    def cancel(self):
+        self.running.clear()
+
+    def run(self):
+        while self.running.is_set():
+            name, timestamp, value = self.incoming.get()
+            with self.callbacks_lock:
+                if name in self.callbacks.keys():
+                    for callback in self.callbacks[name]:
+                        callback(name, timestamp, value)
 
 
 class WSHandler(WebSocketHandler):
@@ -59,14 +101,14 @@ class WSHandler(WebSocketHandler):
             channels = {}
             # "data": "some channel"
             if isinstance(requested, str):
-                channels[requested] = self.listener.history(requested)
+                channels[requested] = self.listener.pull(name=requested, n=0)
             # "data": ["some channel", ... ]
             elif isinstance(requested, list):
                 for channel in requested:
                     if not isinstance(channel, str):
                         # TODO log malformed request
                         return
-                    channels[channel] = self.listener.history(channel)
+                    channels[channel] = self.listener.pull(name=channel, n=0)
             # "data": {"some channel": {"length": "1337"}, ...}
             elif isinstance(requested, dict):
                 for channel, settings in requested.items():
@@ -75,7 +117,7 @@ class WSHandler(WebSocketHandler):
                         return
                     length = settings.get("length")
                     length = int(length) if length != None else None
-                    channels[channel] = self.listener.history(channel, length)
+                    channels[channel] = self.listener.pull(name=channel, n=length)
             else:
                 return
             response_dict = {
@@ -90,11 +132,11 @@ class WSHandler(WebSocketHandler):
         self.listener.unsubscribe(self.update)
 
 
-class Websocket(Source, threading.Thread):
+class Websocket(Source, Thread):
 
     def __init__(self, config, objectconfig, storage):
         super().__init__(config, objectconfig, storage)
-        threading.Thread.__init__(self)
+        Thread.__init__(self)
 
     def get_channels(self):
         return list()

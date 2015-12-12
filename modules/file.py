@@ -12,6 +12,7 @@ class File(TimedSource):
         try:
             with open(filename, "r") as f:
                 content = f.read()
+                if isinstance(content, bytes): content = content.decode("utf-8")
                 if strip:
                     content = content.strip()
                 self.push(content)

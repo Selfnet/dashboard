@@ -1,10 +1,8 @@
-import threading
 import logging
 import builtins
 import time
 from queue import Queue
-from threading import Lock, Event
-
+from threading import Thread, Event, Timer
 
 
 class Source():
@@ -90,12 +88,12 @@ class Source():
 
 
 
-class TimedSource(Source, threading.Thread):
+class TimedSource(Source, Thread):
 
     def __init__(self, config, objectconfig, storage):
         super(TimedSource, self).__init__(config, objectconfig, storage)
-        threading.Thread.__init__(self)
-        self.running = threading.Event()
+        Thread.__init__(self)
+        self.running = Event()
         self.running.set()
         self.interval = self.get_config("interval", 10)
 
@@ -104,7 +102,7 @@ class TimedSource(Source, threading.Thread):
 
     def timer_loop(self):
         if self.running.is_set():
-            self.timer = threading.Timer(
+            self.timer = Timer(
                 self.interval,
                 self.timer_loop,
             )
@@ -118,11 +116,11 @@ class TimedSource(Source, threading.Thread):
 
 
 
-class PubSubSource(Source, threading.Thread):
+class PubSubSource(Source, Thread):
 
     def __init__(self, config, objectconfig, storage):
         super(PubSubSource, self).__init__(config, objectconfig, storage)
-        threading.Thread.__init__(self)
+        Thread.__init__(self)
         self.incoming = Queue()
         self.running = Event()
         self.running.set()
@@ -160,44 +158,3 @@ class PubSubSource(Source, threading.Thread):
         while self.running.is_set():
             name, timestamp, value = self.incoming.get()
             self.update(name, timestamp, value)
-
-
-class Listener(Source, threading.Thread):
-
-    def __init__(self, config, objectconfig, storage):
-        super(Listener, self).__init__(config, objectconfig, storage)
-        threading.Thread.__init__(self)
-        self.incoming = Queue()
-        self.callbacks = {}
-        self.callbacks_lock = Lock()
-        self.running = Event()
-        self.running.set()
-
-    def subscribe(self, channel, callback):
-        with self.callbacks_lock:
-            try:
-                self.callbacks[channel].add(callback)
-            except KeyError:
-                self.callbacks[channel] = set([callback])
-        self.storage.subscribe(channel, self.callback)
-
-    def unsubscribe(self, callback):
-        with self.callbacks_lock:
-            for channel in self.callbacks.keys():
-                self.callbacks[channel].discard(callback)
-                if len(self.callbacks[channel]) == 0:
-                    self.storage.unsubscribe(self.callback, name=channel)
-
-    def callback(self, name, timestamp, value):
-        self.incoming.put((name, timestamp, value))
-
-    def cancel(self):
-        self.running.clear()
-
-    def run(self):
-        while self.running.is_set():
-            name, timestamp, value = self.incoming.get()
-            with self.callbacks_lock:
-                if name in self.callbacks.keys():
-                    for callback in self.callbacks[name]:
-                        callback(name, timestamp, value)

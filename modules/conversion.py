@@ -42,12 +42,12 @@ class OctetsToBps(PubSubSource):
         for source in sources:
             data = self.pull(name=source, n=2)
             try:
-                timediff = float(data[0][0]) - float(data[1][0])
-                counterdiff = counter_difference(int(data[0][1]), int(data[1][1]))
+                timediff = float(data[1][0]) - float(data[0][0])
+                counterdiff = counter_difference(int(data[1][1]), int(data[0][1]))
                 bps = (counterdiff / timediff) * 8
             except IndexError:
                 # not enough data
-                if len(sources) == 1:
+                if len(data) == 1:
                     return
                 else:
                     bps = 0

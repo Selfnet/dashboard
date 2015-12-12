@@ -2,8 +2,9 @@ from threading import Thread, Lock, Event
 from queue import Queue
 
 
-class Storage():
+class Storage(Thread):
     def __init__(self):
+        Thread.__init__(self)
         self.incoming = Queue()
         self.storage = {}
         self.storage_lock = Lock()
@@ -57,7 +58,7 @@ class Storage():
     def run(self):
         while self.running.is_set():
             # blocks until an item is added:
-            name, timestamp, value, max_len = queue.get()
+            name, timestamp, value, max_len = self.incoming.get()
             if not max_len:
                 try:
                     with self.max_lens_lock:
@@ -83,5 +84,8 @@ class Storage():
         For N=0, all data points are returned.
         """
         with self.storage_lock:
-            result = self.storage[name][-n:]
+            try:
+                result = self.storage[name][-n:]
+            except KeyError:
+                result = []
         return result

@@ -10,6 +10,7 @@ class Cmd(TimedSource):
     def cmdcall(self, args):
         process = subprocess.Popen(args, stdout=subprocess.PIPE, shell=True)
         out, err = process.communicate()
+        if isinstance(out, bytes): out = out.decode("utf-8")
         return out
 
     def poll(self):
