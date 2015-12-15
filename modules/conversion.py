@@ -28,19 +28,19 @@ def counter_difference(this, last):
 
 
 class Factor(PubSubSource):
-    def update(self, name, timestamp, value):
+    def update(self, channel, timestamp, value):
         factor = self.get_config("factor")
         value = float(value) * float(factor)
         self.push(value)
 
 class OctetsToBps(PubSubSource):
-    def update(self, name, timestamp, value):
+    def update(self, channel, timestamp, value):
         sources = self.get_config("source")
         if type(sources) == type(""):
             sources = [sources]
         total_bps = 0
         for source in sources:
-            data = self.pull(name=source, n=2)
+            data = self.pull(channel=source, n=2)
             try:
                 timediff = float(data[1][0]) - float(data[0][0])
                 counterdiff = counter_difference(int(data[1][1]), int(data[0][1]))
@@ -55,11 +55,11 @@ class OctetsToBps(PubSubSource):
         self.push(total_bps)
 
 class Sum(PubSubSource):
-    def update(self, name, timestamp, value):
+    def update(self, channel, timestamp, value):
         total = 0
         try:
             for source in self.get_config("source"):
-                timestamp, value = self.pull(name=source)[0]
+                timestamp, value = self.pull(channel=source)[0]
                 total += float(value)
             self.push(total)
         except Exception as e:

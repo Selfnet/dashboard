@@ -33,7 +33,7 @@ class Listener(Source, Thread):
             for channel in self.callbacks.keys():
                 self.callbacks[channel].discard(callback)
                 if len(self.callbacks[channel]) == 0:
-                    self.storage.unsubscribe(self.callback, name=channel)
+                    self.storage.unsubscribe(self.callback, channel=channel)
 
     def callback(self, name, timestamp, value):
         self.incoming.put((name, timestamp, value))
@@ -101,14 +101,14 @@ class WSHandler(WebSocketHandler):
             channels = {}
             # "data": "some channel"
             if isinstance(requested, str):
-                channels[requested] = self.listener.pull(name=requested, n=0)
+                channels[requested] = self.listener.pull(channel=requested, n=0)
             # "data": ["some channel", ... ]
             elif isinstance(requested, list):
                 for channel in requested:
                     if not isinstance(channel, str):
                         # TODO log malformed request
                         return
-                    channels[channel] = self.listener.pull(name=channel, n=0)
+                    channels[channel] = self.listener.pull(channel=channel, n=0)
             # "data": {"some channel": {"length": "1337"}, ...}
             elif isinstance(requested, dict):
                 for channel, settings in requested.items():
@@ -117,7 +117,7 @@ class WSHandler(WebSocketHandler):
                         return
                     length = settings.get("length")
                     length = int(length) if length != None else None
-                    channels[channel] = self.listener.pull(name=channel, n=length)
+                    channels[channel] = self.listener.pull(channel=channel, n=length)
             else:
                 return
             response_dict = {

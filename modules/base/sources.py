@@ -71,24 +71,24 @@ class Source():
         except ValueError:
             logging.debug("typecast error while casting {val} to {cast}".format(val=repr(value), cast=type_name))
 
-    def push(self, value, timestamp=None, name=None):
-        if not name:
-            name = self.get_config("name")
+    def push(self, value, timestamp=None, channel=None):
+        if not channel:
+            channel = self.get_config("name")
         if not timestamp:
             timestamp = time.time()
         value = self.typecast(value)
         length = self.get_config("values", Source.DEFAULT_LENGTH)
-        self.storage.put(name, timestamp, value, length)
+        self.storage.put(channel, timestamp, value, length)
 
-    def pull(self, n=1, name=None):
+    def pull(self, n=1, channel=None):
         """
         Pull timestamp-value-pairs from DB. By default just one,
         if n=0 all stored values. By default the configured name
         of the Source is used, another name can be set optionally.
         """
-        if not name:
-            name = self.get_config("name")
-        return self.storage.get(name, n)
+        if not channel:
+            channel = self.get_config("name")
+        return self.storage.get(channel, n)
 
 
 
@@ -152,13 +152,13 @@ class PubSubSource(Source, Thread):
                 " - could not subscribe to channels"
             ]))
 
-    def callback(self, name, timestamp, value):
-        self.incoming.put((name, timestamp, value))
+    def callback(self, channel, timestamp, value):
+        self.incoming.put((channel, timestamp, value))
 
     def cancel(self):
         self.running.clear()
 
     def run(self):
         while self.running.is_set():
-            name, timestamp, value = self.incoming.get()
-            self.update(name, timestamp, value)
+            channel, timestamp, value = self.incoming.get()
+            self.update(channel, timestamp, value)
