@@ -65,7 +65,11 @@ class Source():
                 raise ValueError("not a type")
         except ValueError:
             raise Exception("invalid type cast (\"{type_name}\" not a built-in type) for {classname}".format(type_name=type_name, classname=self.__class__.__name__))
-        return cast(value)
+        try:
+            value = cast(value)
+            return value
+        except ValueError:
+            logging.debug("typecast error while casting {val} to {cast}".format(val=repr(value), cast=type_name))
 
     def push(self, value, timestamp=None, name=None):
         if not name:
