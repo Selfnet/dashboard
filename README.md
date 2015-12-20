@@ -38,18 +38,21 @@ For source objects, the software will search for parameters in the corresponding
 Here's the class structure for the available sources:
 
 <pre>
-Source
-|-- PubSubSource
-|   |-- Factor
-|   |-- OctetsToBps
-|   `-- Sum
-`-- TimedSource
-    |-- Cmd
-    |-- HTTPGet
-    |-- Munin
-    |-- Ping
-    |-- SNMPGet
-    `-- SNMPWalkSum
+Worker
+|-- Websocket
+|-- REST
+`-- Source
+    |-- PubSubSource
+    |   |-- Factor
+    |   |-- OctetsToBps
+    |   `-- Sum
+    `-- TimedSource
+        |-- Cmd
+        |-- HTTPGet
+        |-- Munin
+        |-- Ping
+        |-- SNMPGet
+        `-- SNMPWalkSum
 </pre>
 
 The TimedSource classes run every $interval seconds. The PubSubSources update either when their first data source is updated, or when either of the sources is updated.

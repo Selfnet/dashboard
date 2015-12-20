@@ -1,7 +1,7 @@
 import logging
 import time
 import json
-from .base.sources import Source
+from .base.worker import Worker
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler, HTTPError, asynchronous
 from queue import Queue
@@ -86,7 +86,7 @@ class RESTHandler(RequestHandler):
         self.finish()
 
 
-class REST(Source, Thread):
+class REST(Worker, Thread):
 
     def __init__(self, config, objectconfig, storage):
         super().__init__(config, objectconfig, storage)

@@ -1,7 +1,7 @@
 import logging
 import time
 import json
-from .base.sources import Source
+from .base.worker import Worker
 from tornado.ioloop import IOLoop
 from tornado.websocket import WebSocketHandler
 from tornado.web import Application, RequestHandler
@@ -9,11 +9,11 @@ from queue import Queue
 from threading import Thread, Lock, Event
 
 
-class Listener(Source, Thread):
+class Listener(Thread):
 
-    def __init__(self, config, objectconfig, storage):
-        super(Listener, self).__init__(config, objectconfig, storage)
+    def __init__(self, storage):
         Thread.__init__(self)
+        self.storage = storage
         self.incoming = Queue()
         self.callbacks = {}
         self.callbacks_lock = Lock()
@@ -53,7 +53,7 @@ class Listener(Source, Thread):
 class WSHandler(WebSocketHandler):
     def initialize(self, **kwargs):
         self.listener = kwargs["listener"]
-        self.config = kwargs["config"]
+        self.storage = kwargs["storage"]
 
     def check_origin(self, origin):
         return True
@@ -101,14 +101,14 @@ class WSHandler(WebSocketHandler):
             channels = {}
             # "data": "some channel"
             if isinstance(requested, str):
-                channels[requested] = self.listener.pull(channel=requested, n=0)
+                channels[requested] = self.storage.get(channel=requested, n=0)
             # "data": ["some channel", ... ]
             elif isinstance(requested, list):
                 for channel in requested:
                     if not isinstance(channel, str):
                         # TODO log malformed request
                         return
-                    channels[channel] = self.listener.pull(channel=channel, n=0)
+                    channels[channel] = self.storage.get(channel=channel, n=0)
             # "data": {"some channel": {"length": "1337"}, ...}
             elif isinstance(requested, dict):
                 for channel, settings in requested.items():
@@ -117,7 +117,7 @@ class WSHandler(WebSocketHandler):
                         return
                     length = settings.get("length")
                     length = int(length) if length != None else None
-                    channels[channel] = self.listener.pull(channel=channel, n=length)
+                    channels[channel] = self.storage.get(channel=channel, n=length)
             else:
                 return
             response_dict = {
@@ -132,14 +132,17 @@ class WSHandler(WebSocketHandler):
         self.listener.unsubscribe(self.update)
 
 
-class Websocket(Source, Thread):
+class Websocket(Worker, Thread):
 
     def __init__(self, config, objectconfig, storage):
-        super().__init__(config, objectconfig, storage)
+        super(Websocket, self).__init__(config, objectconfig, storage)
         Thread.__init__(self)
 
     def get_channels(self):
         return list()
+
+    def prepare(self):
+        pass
 
     def run(self):
         permit = self.get_config("permit", "sources")
@@ -158,12 +161,12 @@ class Websocket(Source, Thread):
         if not channels:
             logging.warning("no websocket sources defined - allowing subscription for all channels")
 
-        listener = Listener(self.config, self.objectconfig, self.storage)
+        listener = Listener(self.storage)
         listener.start()
 
         # start websockets
         application = Application([
-            (addr, WSHandler, dict(config=self.config, listener=listener)),
+            (addr, WSHandler, dict(listener=listener, storage=self.storage)),
         ], debug=True)
         application.listen(port)
 
