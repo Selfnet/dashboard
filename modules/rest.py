@@ -3,32 +3,58 @@ import time
 import json
 from .base.sources import Source
 from tornado.ioloop import IOLoop
-from tornado.web import Application, RequestHandler, HTTPError
+from tornado.web import Application, RequestHandler, HTTPError, asynchronous
 from queue import Queue
 from threading import Thread, Lock, Event
 
 
+class Getter(Thread):
+
+    def __init__(self, storage):
+        Thread.__init__(self)
+        self.storage = storage
+        self.jobs = Queue()
+        self.running = Event()
+        self.running.set()
+
+    def get(self, channels, n, time_min, time_max, callback):
+        self.jobs.put((channels, n, time_min, time_max, callback))
+
+    def run(self):
+        while self.running.is_set():
+            channels, n, time_min, time_max, callback = self.jobs.get()
+            datasets = {}
+            for channel in channels:
+                datasets[channel] = self.storage.get(channel=channel, n=n)
+                if time_min:
+                    datasets[channel] = [(ts, val) for ts, val in datasets[channel] if ts > time_min]
+                if time_max:
+                    datasets[channel] = [(ts, val) for ts, val in datasets[channel] if ts < time_max]
+            response_dict = {
+                # TODO
+                # "meta": {
+                #     "channels" = channels,
+                #     "time_min" = time_min,
+                #     "time_max" = time_max,
+                #     "number"   = number,
+                # },
+                "data": datasets,
+            }
+            response = json.dumps(response_dict)
+            callback(response)
+
+
 class RESTHandler(RequestHandler):
     def initialize(self, **kwargs):
-        self.storage = kwargs["storage"]
+        self.getter = kwargs["getter"]
         self.config = kwargs["config"]
 
-    def update(self, channel, timestamp, value):
-        response = json.dumps({
-            "message": "update",
-            "data": {
-                channel: {
-                    timestamp: value,
-                },
-            },
-        })
-        self.write_message(response)
-
+    @asynchronous
     def get(self):
         channels = self.get_argument("channels",  "")
         time_min = self.get_argument("time_min", "")
         time_max = self.get_argument("time_max", "")
-        number   = self.get_argument("number",   "")
+        last = self.get_argument("last",   "")
         datasets = {}
         channels = channels.split(",")
 
@@ -43,33 +69,21 @@ class RESTHandler(RequestHandler):
             time_max = None
 
         try:
-            number = int(number)
+            last = int(last)
         except ValueError:
-            number = 0
+            last = 0
 
-        for channel in channels:
-            datasets[channel] = self.storage.get(channel=channel, n=number)
-            if time_min:
-                datasets[channel] = [(ts,val) for ts,val in datasets[channel] if ts>time_min]
-            if time_max:
-                datasets[channel] = [(ts,val) for ts,val in datasets[channel] if ts<time_max]
-        response_dict = {
-            # TODO
-            #"meta": {
-            #    "channels" = channels,
-            #    "time_min" = time_min,
-            #    "time_max" = time_max,
-            #    "number"   = number,
-            #},
-            "data": datasets,
-        }
-        response = json.dumps(response_dict)
+        self.getter.get(
+            channels=channels,
+            n=last,
+            time_min=time_min,
+            time_max=time_max,
+            callback=self.callback
+        )
+
+    def callback(self, response):
         self.write(response)
         self.finish()
-
-    def on_close(self):
-        logging.debug('websocket connection closed')
-        self.listener.unsubscribe(self.update)
 
 
 class REST(Source, Thread):
@@ -83,8 +97,8 @@ class REST(Source, Thread):
 
     def run(self):
         permit = self.get_config("permit", "sources")
-        addr   = self.get_config("address", "/get")
-        port   = self.get_config("port", 8000)
+        addr = self.get_config("address", "/get")
+        port = self.get_config("port", 8000)
 
         if permit == "sources":
             try:
@@ -98,9 +112,12 @@ class REST(Source, Thread):
         if not channels:
             logging.warning("no REST sources defined - allowing subscription for all channels")
 
+        getter = Getter(self.storage)
+        getter.start()
+
         # start websockets
         application = Application([
-            (addr, RESTHandler, dict(config=self.config, storage=self.storage)),
+            (addr, RESTHandler, dict(config=self.config, getter=getter)),
         ], debug=True)
         application.listen(port)
 
