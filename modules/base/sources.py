@@ -15,6 +15,13 @@ class Source():
         self.objectconfig = objectconfig
         self.storage = storage
 
+    def prepare(self):
+        """
+        gets called after all sources have been created, and before
+        threads are started
+        """
+        pass
+
     def get_config(self, key, default=None):
         # priority 1: value is configured for this object
         try:

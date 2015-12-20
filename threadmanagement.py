@@ -9,6 +9,12 @@ class WorkerThreads(object):
         self.storage = storage
         self.active_workers = []
 
+    def get_channels(self):
+        channels = {}
+        for worker in self.active_workers:
+            channels[worker] = worker.get_channels()
+        return channels
+
     def _initialize(self):
         for workerconfig in self.config["workers"]:
             for classname, args in workerconfig.items():
@@ -25,15 +31,17 @@ class WorkerThreads(object):
                     for key, value in args.items():
                         logging.warning("   %s: %s" % (key, value))
 
-    def get_channels(self):
-        channels = {}
-        for worker in self.active_workers:
-            channels[worker] = worker.get_channels()
-        return channels
+    def _prepare(self):
+        for t in self.active_workers:
+            t.prepare()
+
+    def _start(self):
+        for t in self.active_workers:
+            t.start()
 
     def start(self):
         self._initialize()
-        for t in self.active_workers:
-            t.start()
+        self._prepare()
+        self._start()
         # TODO logging
         logging.info(str(len(self.active_workers)) + " workers running")
