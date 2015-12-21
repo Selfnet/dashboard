@@ -4,52 +4,18 @@ import json
 from .base.worker import Worker
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler, HTTPError, asynchronous
+from tornado.gen import engine, Task
 from queue import Queue
 from threading import Thread, Lock, Event
 
 
-class Getter(Thread):
-
-    def __init__(self, storage):
-        Thread.__init__(self)
-        self.storage = storage
-        self.jobs = Queue()
-        self.running = Event()
-        self.running.set()
-
-    def get(self, channels, n, time_min, time_max, callback):
-        self.jobs.put((channels, n, time_min, time_max, callback))
-
-    def run(self):
-        while self.running.is_set():
-            channels, n, time_min, time_max, callback = self.jobs.get()
-            datasets = {}
-            for channel in channels:
-                datasets[channel] = self.storage.get(channel=channel, n=n)
-                if time_min:
-                    datasets[channel] = [(ts, val) for ts, val in datasets[channel] if ts > time_min]
-                if time_max:
-                    datasets[channel] = [(ts, val) for ts, val in datasets[channel] if ts < time_max]
-            response_dict = {
-                # TODO
-                # "meta": {
-                #     "channels" = channels,
-                #     "time_min" = time_min,
-                #     "time_max" = time_max,
-                #     "number"   = number,
-                # },
-                "data": datasets,
-            }
-            response = json.dumps(response_dict)
-            callback(response)
-
-
 class RESTHandler(RequestHandler):
     def initialize(self, **kwargs):
-        self.getter = kwargs["getter"]
-        self.config = kwargs["config"]
+        self.allowed_channels = kwargs["allowed_channels"]
+        self.storage = kwargs["storage"]
 
     @asynchronous
+    @engine
     def get(self):
         channels = self.get_argument("channels",  "")
         time_min = self.get_argument("time_min", "")
@@ -73,15 +39,37 @@ class RESTHandler(RequestHandler):
         except ValueError:
             last = 0
 
-        self.getter.get(
+        if self.allowed_channels:
+            channels = [channel for channel in channels if channel in self.allowed_channels]
+
+        def fetchdata(storage, channels, n, time_min, time_max, callback):
+            datasets = {}
+            for channel in channels:
+                datasets[channel] = storage.get(channel=channel, n=n)
+                if time_min:
+                    datasets[channel] = [(ts, val) for ts, val in datasets[channel] if ts > time_min]
+                if time_max:
+                    datasets[channel] = [(ts, val) for ts, val in datasets[channel] if ts < time_max]
+            response_dict = {
+                # TODO
+                # "meta": {
+                #     "channels" = channels,
+                #     "time_min" = time_min,
+                #     "time_max" = time_max,
+                #     "number"   = number,
+                # },
+                "data": datasets,
+            }
+            response = json.dumps(response_dict)
+            IOLoop.instance().add_callback(lambda: callback(response))
+
+        response = yield Task(fetchdata,
+            storage=self.storage,
             channels=channels,
             n=last,
             time_min=time_min,
             time_max=time_max,
-            callback=self.callback
         )
-
-    def callback(self, response):
         self.write(response)
         self.finish()
 
@@ -95,7 +83,7 @@ class REST(Worker, Thread):
     def get_channels(self):
         return list()
 
-    def run(self):
+    def prepare(self):
         permit = self.get_config("permit", "sources")
         addr = self.get_config("address", "/get")
         port = self.get_config("port", 8000)
@@ -112,17 +100,18 @@ class REST(Worker, Thread):
         if not channels:
             logging.warning("no REST sources defined - allowing subscription for all channels")
 
-        getter = Getter(self.storage)
-        getter.start()
-
         # start websockets
         application = Application([
-            (addr, RESTHandler, dict(config=self.config, getter=getter)),
-        ], debug=True)
+            (addr, RESTHandler, dict(allowed_channels=channels, storage=self.storage)),
+        ], debug=False)
         application.listen(port)
 
-        IOLoop.instance().start()
+    def run(self):
+        ioloop = IOLoop.instance()
+        logging.warning("ioloop status " + str(ioloop._running))
+        if not ioloop._running:
+            logging.warning("starting ioloop in REST")
+            ioloop.start()
 
     def cancel(self):
-        # TODO
-        pass
+        IOLoop.instance().stop()

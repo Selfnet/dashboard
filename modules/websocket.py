@@ -144,7 +144,7 @@ class Websocket(Worker, Thread):
     def prepare(self):
         pass
 
-    def run(self):
+    def prepare(self):
         permit = self.get_config("permit", "sources")
         addr   = self.get_config("address", "/websocket")
         port   = self.get_config("port", 5000)
@@ -167,10 +167,14 @@ class Websocket(Worker, Thread):
         # start websockets
         application = Application([
             (addr, WSHandler, dict(listener=listener, storage=self.storage)),
-        ], debug=True)
+        ], debug=False)
         application.listen(port)
 
-        IOLoop.instance().start()
+    def run(self):
+        ioloop = IOLoop.instance()
+        if not ioloop._running:
+            logging.warning("starting ioloop in REST")
+            ioloop.start()
 
     def cancel(self):
         # TODO
