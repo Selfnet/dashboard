@@ -9,7 +9,7 @@ from queue import Queue
 from threading import Thread, Lock, Event
 
 
-class RESTHandler(RequestHandler):
+class GetHandler(RequestHandler):
     def initialize(self, **kwargs):
         self.allowed_channels = kwargs["allowed_channels"]
         self.storage = kwargs["storage"]
@@ -40,7 +40,7 @@ class RESTHandler(RequestHandler):
             last = 0
 
         if self.allowed_channels:
-            channels = [channel for channel in channels if channel in self.allowed_channels]
+            channels = set(channels) & set(self.allowed_channels)
 
         def fetchdata(storage, channels, n, time_min, time_max, callback):
             datasets = {}
@@ -63,12 +63,43 @@ class RESTHandler(RequestHandler):
             response = json.dumps(response_dict)
             IOLoop.instance().add_callback(lambda: callback(response))
 
-        response = yield Task(fetchdata,
+        response = yield Task(
+            fetchdata,
             storage=self.storage,
             channels=channels,
             n=last,
             time_min=time_min,
             time_max=time_max,
+        )
+        self.write(response)
+        self.finish()
+
+
+class ListHandler(RequestHandler):
+    def initialize(self, **kwargs):
+        self.allowed_channels = kwargs["allowed_channels"]
+        self.storage = kwargs["storage"]
+
+    @asynchronous
+    @engine
+    def get(self):
+        def fetchdata(storage, allowed, callback):
+            channels = storage.list_channels()
+            if allowed:
+                channels = set(channels) & set(allowed)
+            response_dict = {
+                # TODO
+                # "meta": {
+                # },
+                "data": list(channels),
+            }
+            response = json.dumps(response_dict)
+            IOLoop.instance().add_callback(lambda: callback(response))
+
+        response = yield Task(
+            fetchdata,
+            storage=self.storage,
+            allowed=self.allowed_channels,
         )
         self.write(response)
         self.finish()
@@ -85,7 +116,7 @@ class REST(Worker, Thread):
 
     def prepare(self):
         permit = self.get_config("permit", "sources")
-        addr = self.get_config("address", "/get")
+        addr = self.get_config("address", "/")
         port = self.get_config("port", 8000)
 
         if permit == "sources":
@@ -100,9 +131,14 @@ class REST(Worker, Thread):
         if not channels:
             logging.warning("no REST sources defined - allowing subscription for all channels")
 
+        if addr:
+            if not addr.endswith("/"):
+                addr = addr + "/"
+
         # start websockets
         application = Application([
-            (addr, RESTHandler, dict(allowed_channels=channels, storage=self.storage)),
+            (addr + "get", GetHandler, dict(allowed_channels=channels, storage=self.storage)),
+            (addr + "list", ListHandler, dict(allowed_channels=channels, storage=self.storage)),
         ], debug=False)
         application.listen(port)
 
