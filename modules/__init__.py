@@ -9,6 +9,7 @@ __all__ = ["base",
     "conversion",
     "websocket",
     "REST",
+    "persistentstorage",
 ]
 
 from .base import *
@@ -22,3 +23,4 @@ from .file import *
 from .conversion import *
 from .websocket import Websocket
 from .rest import REST
+from .persistentstorage import *
