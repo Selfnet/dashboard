@@ -89,3 +89,18 @@ class Storage(Thread):
             except KeyError:
                 result = []
         return result
+
+    def list_channels(self):
+        with self.storage_lock:
+            channels = self.storage.keys()
+        return channels
+
+    def dump(self):
+        with self.storage_lock:
+            # get a copy
+            dump = dict(self.storage)
+        return dump
+
+    def load(self, data):
+        with self.storage_lock:
+            self.storage = data
