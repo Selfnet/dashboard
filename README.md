@@ -110,7 +110,7 @@ class Random(TimedSource):
         self.push(randnum)
 ```
 
-The configuration for an source of this module could look like this:
+The configuration for a source of this module could look like this:
 
 ```yaml
 workers:
@@ -132,7 +132,7 @@ Other types of frontends (WebGL, steampunk-style gauges, ncurses, CLI, Android-A
 
 ### Why python3?
 
-If you're using debian oldstable and don't have up-to-date software available, try using a virtualenv, or some other distro. Python 3 has many improvements, e.g. multithreading support, which are important here, so get over it.
+If you're using debian oldstable and don't have up-to-date software available, try using a virtualenv, or some other distro. Python 3 has many improvements, e.g. much better multithreading supporti, asyncio, ipaddres, etc., which are important here, so get over it.
 
 ### Why websockets?
 
