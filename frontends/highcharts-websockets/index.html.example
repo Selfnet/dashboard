@@ -1,48 +1,39 @@
 <!doctype html>
-<meta charset='utf-8'>
-<title>Dashboard Demo</title>
-<link href="lib/c3.css" rel="stylesheet" type="text/css">
+<meta charset=utf-8>
+
+<title>Dashboard</title>
+
+<script type="text/javascript" src="lib/jquery.min.js"></script>
+<script type="text/javascript">
+jQuery.noConflict();
+</script>
+<script type="text/javascript" src="lib/highcharts.js"></script>
+<script type="text/javascript" src="theme.js"></script>
 </head>
 
-<div id='chart' style="width:600px;"></div>
+<div class="body">
+  <h2>Demo Chart</h2>
+  <div class="chart" id="chart_random" style="width:625px;height:225px;"></div>
+</div>
 
-<script src="lib/jquery-1.11.0.min.js" type="text/javascript"></script>
-<script src="lib/d3-3.5.0.min.js" type="text/javascript"></script>
-<script src="lib/c3.min.js" type="text/javascript"></script>
-<script src="dashboard.js" type="text/javascript"></script>
-
+<script type="text/javascript" src="dashboard.js"></script>
 <script type="text/javascript">
-testchart = c3.generate({
-    data: {
-        xs: {
-            'ping google': 'ping google-ts',
-        },
-        xFormat: '$H:$M',
-        columns: [
-            ['ping google-ts'],
-            ['ping google'],
-        ],
-        type: 'line'
-    },
-    axis: {
-        x: {
-            type: 'timeseries',
-            tick: {
-                format: '%H:%M'
-            }
-        }
+
+Highcharts.setOptions({
+    global: {
+        useUTC: false
     }
 });
 
 dashboard = new Dashboard();
+dashboard.url = "ws://localhost:5000/websocket";
 
-dashboard.addChart({
-    chart: testchart,
-    channels: {
-        "ping google": "ping:google-dns:ipv4",
-    },
-    length: 10
-});
+randomchart = dashboard.createChart("chart_random", "", "", ["integer"]);
+dashboard.addSeriesToChart(randomchart, "random", "random", 12);
 
-dashboard.run("ws://p21423.probes.atlas.ripe.net:5000/websocket");
+dashboard.start();
+
+
 </script>
+
+

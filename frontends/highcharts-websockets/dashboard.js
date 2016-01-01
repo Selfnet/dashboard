@@ -24,6 +24,8 @@ ChartSeriesTarget.prototype.populate = function(list) {
     for (var i = 0; i < list.length; i++) {
         list[i][0] = 1000 * list[i][0]
     }
+
+    list = list.splice(-this.maxvalues);
     this.series.setData(list);
 }
 
@@ -58,6 +60,7 @@ function Dashboard() {
     this.targets = []; // list of key/value pairs
     this.updateInterval = 10; // default value
     this.redrawScheduled = false;
+    this.url = "";
 }
 Dashboard.prototype.addTarget = function(source, target) {
     // data from source dataset gets added to the target
@@ -127,7 +130,7 @@ Dashboard.prototype.start = function() {
         this.ws.close();
     }
 
-    this.ws = new WebSocket("ws://dashboard.selfnet.de/ws/websocket");
+    this.ws = new WebSocket(this.url);
     this.lastUpdate = Date.now();
     this.ws.onopen = function() {
         t.getHistory();
