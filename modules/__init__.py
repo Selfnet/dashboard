@@ -10,6 +10,7 @@ __all__ = ["base",
     "websocket",
     "REST",
     "persistentstorage",
+    "random",
 ]
 
 from .base import *
@@ -24,3 +25,4 @@ from .conversion import *
 from .websocket import Websocket
 from .rest import REST
 from .persistentstorage import *
+from .random import *
