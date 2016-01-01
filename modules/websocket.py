@@ -172,9 +172,11 @@ class Websocket(Worker, Thread):
 
     def run(self):
         ioloop = IOLoop.instance()
-        if not ioloop._running:
-            logging.warning("starting ioloop in REST")
+        try:
             ioloop.start()
+        except RuntimeError:
+            # it's probably been started by another thread before
+            pass
 
     def cancel(self):
         # TODO
