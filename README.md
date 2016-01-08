@@ -30,19 +30,51 @@ This project is meant to enable others to work with the data provided by the das
     * jquery
 
 
+## Installation
+
+#### Overview
+
+  1. clone the git
+  2. install dependencies
+  3. configure the dashboard backend
+  4. setup a frontend
+
+##### 1. clone the git
+
+```sh
+cd /opt
+git clone https://github.com/Selfnet/dashboard.git
+cd dashboard
+```
+
+#### 2. install dependencies
+
+Install dependencies depending on the OS and package manager you're using. You will at least need Python >= 3.4 on a Linux-OS. Depending on which modules you are using, you wil need other packages, e.g. snmp or python-tornado. Find more information in the "Dependencies" section.
+
+##### 3. configure the dashboard backend
+
+The config files live in ```conf.d/```. You can use the examples in ```conf.d.example/``` and maybe copy and adapt them to fit your needs.
+
+When you're finished with configuration, you can start the dashboard by calling ```./dashboard.py```.
+
+If you want systemd to to look after it, there is an example service file in ```scripts/dashboard.service``` that you can copy to ```/etc/systemd/system/dashboard.service```. It requires a user and group named "dashboard" to exist and to have the right permissions.
+
+##### 4. setup a frontend
+
+Currently only a web-frontend-framework based on the "highcharts" chart library is included. You can find it in ```frontends/highcharts-websockets/```.
+
+You can copy them to a webserver to be delivered statically. You need to setup the Websocket-module in the backend. You can then let the clients connect to the dashboard directly, or point them at your webserver which proxies the websocket connections to the backend.
+
+You also need highcharts and jquery at ```lib/highcharts.js``` and ```lib/jquery.min.js```.
+
+Edit the ```index.html```, Highcharts-theme, etc. to fit your needs.
+
+
 ## How it works
 
 The server spawns a number of threads, one for each configured data source. The threads run asynchronously and fetch updates in their own interval. The data is then written to the key-value store as the value and a timestamp. Some data sources don't run updates in a configured interval, but listen on updates for existing datasets. This comes in handy, whenever you need data in a different format, combine previous values (difference, average, etc.), or combine data from multiple sources.
 
 The website should be delivered by a webserver (static files), so the dashboard only needs to run the websockets or REST API. The javascript classes provide an interface that you can use to spawn charts that listen on updates and update automatically. The chart data is provided via websockets. If datasets are updated, the server pushes those updates to the clients using those websockets.
-
-
-## Installation / How To
-
-  1. Checkout the git and install the dependencies.
-  2. Configure the server. There's an example configuration in conf.d.example that you can use. Take a look at the "Configuration" Section below aswell.
-  3. Change the html files to suit your needs. Get yourself a nice looking page. The "source" for the datasets has to be the name of your datasets in the servers configuration.
-  4. Run the dashboard and have fun.
 
 
 ## Configuration
