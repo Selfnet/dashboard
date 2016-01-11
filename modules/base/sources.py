@@ -8,9 +8,6 @@ from .worker import Worker
 
 
 class Source(Worker):
-
-    DEFAULT_LENGTH = 1080
-
     def __init__(self, config, objectconfig, storage):
         super(Source, self).__init__(config, objectconfig, storage)
 
@@ -43,7 +40,7 @@ class Source(Worker):
         if not timestamp:
             timestamp = time.time()
         value = self.typecast(value)
-        length = self.get_config("values", Source.DEFAULT_LENGTH)
+        length = self.get_config("values")
         self.storage.put(channel, timestamp, value, length)
 
     def pull(self, n=1, channel=None):
