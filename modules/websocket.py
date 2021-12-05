@@ -137,7 +137,7 @@ class WSHandler:
 
 
     async def write_message(self, response):
-        print('Writing response ' + str(response))
+        print(datetime.datetime.now.isoformat + ' ' + 'Writing response ' + str(response))
         await self.websocket.send(response)
 
 

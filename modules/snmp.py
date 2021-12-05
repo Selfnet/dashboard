@@ -1,6 +1,6 @@
 import logging
 import asyncio
-
+import datetime
 from .base.sources import TimedSource
 
 
@@ -17,6 +17,7 @@ class SNMPGet(TimedSource):
         ]
         process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE)
         out, err = await process.communicate()
+        print(datetime.datetime.now().isoformat + ' ' + out)
         return out
 
     async def poll(self):
@@ -53,6 +54,7 @@ class SNMPWalkSum(TimedSource):
         ]
         process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE)
         out, err = await process.communicate()
+        print(out)
         return out
 
     async def poll(self):
