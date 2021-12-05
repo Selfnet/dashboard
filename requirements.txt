@@ -1,3 +1,4 @@
 pyaml
 aiohttp[speedups]
 aiofile
+websockets

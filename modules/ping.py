@@ -4,7 +4,6 @@ import asyncio
 from .base.sources import TimedSource
 
 
-
 class Ping(TimedSource):
 
     async def pingcall(self, host, count=1, timeout=1, protocol=4):
@@ -41,7 +40,7 @@ class Ping(TimedSource):
             else:
                 logging.debug("last line of ping did not contain timings: " + repr(lastline))
                 rtt = None
-            self.push(rtt)
+            await self.push(rtt)
         except Exception as e:
             logging.exception(" ".join([
                 type(e).__name__ + ":",

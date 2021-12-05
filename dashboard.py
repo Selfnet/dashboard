@@ -22,7 +22,6 @@ if __name__ == '__main__':
     # get the configuration
     conf = config.parse_config()
     stor = storage.Storage()
-    stor.start()
 
     # if no sources are configured, don't even try to start threads
     if "workers" in conf:

@@ -4,7 +4,6 @@ import asyncio
 from .base.sources import TimedSource
 
 
-
 class SNMPGet(TimedSource):
 
     async def snmpcall(self, host, oid, version=1, community="public"):
@@ -31,7 +30,7 @@ class SNMPGet(TimedSource):
             if line:
                 value = line.split(b" ")[1].decode("utf-8")
                 value = self.typecast(value)
-                self.push(value)
+                await self.push(value)
         except Exception as e:
             logging.exception(" ".join([
                 type(e).__name__ + ":",
@@ -68,7 +67,7 @@ class SNMPWalkSum(TimedSource):
                 if line:
                     value = self.typecast(line.split(b" ")[1].decode("utf-8"))
                     total += value
-            self.push(total)
+            await self.push(total)
         except Exception as e:
             logging.exception(" ".join([
                 type(e).__name__ + ":",

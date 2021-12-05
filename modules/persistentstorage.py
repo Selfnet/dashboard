@@ -6,7 +6,6 @@ from aiofile import async_open
 from .base.sources import TimedSource
 
 
-
 class PersistentStorage(TimedSource):
     def prepare(self):
         filename = self.get_config("filename")
@@ -20,8 +19,8 @@ class PersistentStorage(TimedSource):
             logging.info("failed to load PersistenStorage: {exception}".format(exception=str(e)))
 
     async def poll(self):
-        datasets = self.storage.dump()
+        datasets = await self.storage.dump()
         data = {"timestamp": time.time(), "data": datasets}
         filename = self.get_config("filename")
-        async with open(filename, "w") as f:
+        async with async_open(filename, "w") as f:
             await f.write(json.dumps(data))

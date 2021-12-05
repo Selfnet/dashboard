@@ -20,7 +20,7 @@ class Parser(PubSubSource):
         else:
             return data[path]
 
-    def update(self, channel, timestamp, value):
+    async def update(self, channel, timestamp, value):
         # get parameters
         path = self.get_config("path", [])
 
@@ -39,7 +39,7 @@ class Parser(PubSubSource):
                 logging.info(str(e))
 
         # write the data
-        self.push(value)
+        await self.push(value)
 
 
 class JSONParser(Parser):

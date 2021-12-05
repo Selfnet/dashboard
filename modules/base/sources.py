@@ -2,6 +2,7 @@ import logging
 import builtins
 import time
 from asyncio import Event, Queue
+import asyncio
 
 from .worker import Worker
 
@@ -34,16 +35,16 @@ class Source(Worker):
         except ValueError:
             logging.debug("typecast error while casting {val} to {cast}".format(val=repr(value), cast=type_name))
 
-    def push(self, value, timestamp=None, channel=None):
+    async def push(self, value, timestamp=None, channel=None):
         if not channel:
             channel = self.get_config("name")
         if not timestamp:
             timestamp = time.time()
         value = self.typecast(value)
         length = self.get_config("values")
-        self.storage.put(channel, timestamp, value, length)
+        await self.storage.put(channel, timestamp, value, length)
 
-    def pull(self, n=1, channel=None):
+    async def pull(self, n=1, channel=None):
         """
         Pull timestamp-value-pairs from DB. By default just one,
         if n=0 all stored values. By default the configured name
@@ -51,7 +52,7 @@ class Source(Worker):
         """
         if not channel:
             channel = self.get_config("name")
-        return self.storage.get(channel, n)
+        return await self.storage.get(channel, n)
 
 
 
@@ -59,8 +60,6 @@ class TimedSource(Source):
 
     def __init__(self, config, objectconfig, storage):
         super(TimedSource, self).__init__(config, objectconfig, storage)
-        self.running = Event()
-        self.running.set()
         self.interval = self.get_config("interval", 10)
 
     def cancel(self):
@@ -69,23 +68,22 @@ class TimedSource(Source):
     async def start(self):
         ''' Start async periodic acquisition of new values '''
 
+        self.running = Event()
+        self.running.set()
+        print(f'Start {self.__class__}')
+
         while self.running.is_set():
 
             await self.poll()
             await asyncio.sleep(self.interval)
 
 
-class PubSubSource(Source, Thread):
+class PubSubSource(Source):
 
     def __init__(self, config, objectconfig, storage):
         super(PubSubSource, self).__init__(config, objectconfig, storage)
-        Thread.__init__(self)
-        self.incoming = Queue()
-        self.running = Event()
-        self.running.set()
-        self.subscribe()
 
-    def subscribe(self, mode="first"):
+    async def subscribe(self, mode="first"):
         mode = self.get_config("subscribe", mode)
         try:
             source = self.get_config("source")
@@ -99,7 +97,7 @@ class PubSubSource(Source, Thread):
             elif type(source) == type(""):
                 channels = [source]
             for channel in channels:
-                self.storage.subscribe(channel, self.callback)
+                await self.storage.subscribe(channel, self.callback)
         except Exception as e:
             logging.exception(" ".join([
                 type(e).__name__ + ":",
@@ -107,13 +105,19 @@ class PubSubSource(Source, Thread):
                 " - could not subscribe to channels"
             ]))
 
-    def callback(self, channel, timestamp, value):
-        self.incoming.put((channel, timestamp, value))
+    async def callback(self, channel, timestamp, value):
+        await self.incoming.put((channel, timestamp, value))
 
     def cancel(self):
         self.running.clear()
 
     async def start(self):
+
+        self.incoming = Queue()
+        self.running = Event()
+        self.running.set()
+
+        await self.subscribe()
         while self.running.is_set():
             channel, timestamp, value = await self.incoming.get()
-            self.update(channel, timestamp, value)
+            await self.update(channel, timestamp, value)

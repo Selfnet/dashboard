@@ -33,7 +33,7 @@ def parse_config():
     for filename in files:
         configfile = os.path.join(path, filename)
         try:
-            c = yaml.load(open(configfile, "r"))
+            c = yaml.load(open(configfile, "r"), Loader=yaml.FullLoader)
             if not c:
                 c = {}
         except ValueError as e:

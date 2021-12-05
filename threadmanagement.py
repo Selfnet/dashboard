@@ -37,11 +37,18 @@ class WorkerThreads(object):
             t.prepare()
 
     async def _start(self):
+        print('Starting storage')
+        asyncio.create_task(self.storage.start())
+        print('Starting workers')
         for t in self.active_workers:
-            await t.start()
+            print('Starting ' + str(t))
+            asyncio.create_task(t.start())
 
     def start(self):
         self._initialize()
         self._prepare()
         logging.info(str(len(self.active_workers)) + " workers prepared and will be started")
-        asyncio.run(self._start())
+        print('Starting event loop')
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(self._start())
+        loop.run_forever()

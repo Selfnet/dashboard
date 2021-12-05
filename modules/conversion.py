@@ -3,15 +3,15 @@ import logging
 from .base.sources import PubSubSource
 
 
-
 def countersize(i):
     " estimates the size of the counter used; possible sizes are in 2**n, n>2 "
     n = 3  # start at 8 bit
     while True:
-      if i.bit_length() < 2**n:
-        return 2**n
-      else:
-        n += 1
+        if i.bit_length() < 2**n:
+            return 2**n
+        else:
+            n += 1
+
 
 def counter_difference(this, last):
     if this >= last:
@@ -26,17 +26,17 @@ def counter_difference(this, last):
         return diff
 
 
-
 class Factor(PubSubSource):
-    def update(self, channel, timestamp, value):
+    async def update(self, channel, timestamp, value):
         factor = self.get_config("factor")
         value = float(value) * float(factor)
-        self.push(value)
+        await self.push(value)
+
 
 class OctetsToBps(PubSubSource):
-    def update(self, channel, timestamp, value):
+    async def update(self, channel, timestamp, value):
         sources = self.get_config("source")
-        if type(sources) == type(""):
+        if isinstance(sources, list):
             sources = [sources]
         total_bps = 0
         for source in sources:
@@ -52,16 +52,17 @@ class OctetsToBps(PubSubSource):
                 else:
                     bps = 0
             total_bps += bps
-        self.push(total_bps)
+        await self.push(total_bps)
+
 
 class Sum(PubSubSource):
-    def update(self, channel, timestamp, value):
+    async def update(self, channel, timestamp, value):
         total = 0
         try:
             for source in self.get_config("source"):
                 timestamp, value = self.pull(channel=source)[0]
                 total += float(value)
-            self.push(total)
+            await self.push(total)
         except Exception as e:
             logging.exception(" ".join([
                 type(e).__name__ + ":",
