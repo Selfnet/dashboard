@@ -35,6 +35,7 @@ class Factor(PubSubSource):
 
 class OctetsToBps(PubSubSource):
     async def update(self, channel, timestamp, value):
+        print('Converting octets to bps')
         sources = self.get_config("source")
         if isinstance(sources, list):
             sources = [sources]
@@ -46,6 +47,7 @@ class OctetsToBps(PubSubSource):
                 counterdiff = counter_difference(int(data[1][1]), int(data[0][1]))
                 bps = (counterdiff / timediff) * 8
             except IndexError:
+                print('Error in Conversion: ' + str(data))
                 # not enough data
                 if len(data) == 1:
                     return

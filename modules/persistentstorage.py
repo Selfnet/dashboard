@@ -13,10 +13,10 @@ class PersistentStorage(TimedSource):
             with open(filename, "r") as f:
                 data = json.load(f)
             gap = time.time() - data["timestamp"]
-            logging.info("loading PersistentStorage from file \"{filename}\" (gap: {secs} seconds)".format(filename=filename, secs=gap))
+            print("loading PersistentStorage from file \"{filename}\" (gap: {secs} seconds)".format(filename=filename, secs=gap))
             self.storage.load(data["data"])
         except Exception as e:
-            logging.info("failed to load PersistenStorage: {exception}".format(exception=str(e)))
+            print("failed to load PersistenStorage: {exception}".format(exception=str(e)))
 
     async def poll(self):
         datasets = await self.storage.dump()
