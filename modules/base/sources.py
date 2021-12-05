@@ -1,8 +1,7 @@
 import logging
 import builtins
 import time
-from queue import Queue
-from threading import Thread, Event, Timer
+from asyncio import Event, Queue
 
 from .worker import Worker
 
@@ -12,12 +11,13 @@ class Source(Worker):
         super(Source, self).__init__(config, objectconfig, storage)
 
     def get_channels(self):
-        "return all channels that are written by this source"
+        ''' return all channels that are written by this source '''
         if self.get_config("silent", False):
             return []
         return [self.get_config("name")]
 
     def typecast(self, value, default_type=None):
+        ''' return the value typecasted to the type specified in the config '''
         try:
             type_name = self.get_config("typecast", default_type)
         except KeyError:
@@ -55,32 +55,24 @@ class Source(Worker):
 
 
 
-class TimedSource(Source, Thread):
+class TimedSource(Source):
 
     def __init__(self, config, objectconfig, storage):
         super(TimedSource, self).__init__(config, objectconfig, storage)
-        Thread.__init__(self)
         self.running = Event()
         self.running.set()
         self.interval = self.get_config("interval", 10)
 
-    def run(self):
-        self.timer_loop()
-
-    def timer_loop(self):
-        if self.running.is_set():
-            self.timer = Timer(
-                self.interval,
-                self.timer_loop,
-            )
-            self.timer.start()
-            self.poll()
-
     def cancel(self):
         self.running.clear()
-        if self.timer is not None:
-            self.timer.cancel()
 
+    async def start(self):
+        ''' Start async periodic acquisition of new values '''
+
+        while self.running.is_set():
+
+            await self.poll()
+            await asyncio.sleep(self.interval)
 
 
 class PubSubSource(Source, Thread):
@@ -121,7 +113,7 @@ class PubSubSource(Source, Thread):
     def cancel(self):
         self.running.clear()
 
-    def run(self):
+    async def start(self):
         while self.running.is_set():
-            channel, timestamp, value = self.incoming.get()
+            channel, timestamp, value = await self.incoming.get()
             self.update(channel, timestamp, value)

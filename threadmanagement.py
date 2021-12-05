@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 import logging
 import modules
+import asyncio
 
 
 class WorkerThreads(object):
@@ -25,9 +26,9 @@ class WorkerThreads(object):
                     self.active_workers.append(instance)
                 except ValueError as e:
                     logging.exception(" ".join([
-                            type(e).__name__ + ":",
-                            str(e)
-                        ]))
+                        type(e).__name__ + ":",
+                        str(e)
+                    ]))
                     for key, value in args.items():
                         logging.warning("   %s: %s" % (key, value))
 
@@ -35,13 +36,12 @@ class WorkerThreads(object):
         for t in self.active_workers:
             t.prepare()
 
-    def _start(self):
+    async def _start(self):
         for t in self.active_workers:
-            t.start()
+            await t.start()
 
     def start(self):
         self._initialize()
         self._prepare()
-        self._start()
-        # TODO logging
-        logging.info(str(len(self.active_workers)) + " workers running")
+        logging.info(str(len(self.active_workers)) + " workers prepared and will be started")
+        asyncio.run(self._start())

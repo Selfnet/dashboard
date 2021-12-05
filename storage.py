@@ -1,10 +1,8 @@
-from threading import Thread, Lock, Event
-from queue import Queue
+from asyncio import Lock, Event, Queue
 
 
-class Storage(Thread):
+class Storage:
     def __init__(self):
-        Thread.__init__(self)
         self.incoming = Queue()
         self.storage = {}
         self.storage_lock = Lock()
@@ -55,10 +53,10 @@ class Storage(Thread):
         """
         self.incoming.put((channel, timestamp, value, max_len))
 
-    def run(self):
+    async def start(self):
         while self.running.is_set():
             # blocks until an item is added:
-            channel, timestamp, value, max_len = self.incoming.get()
+            channel, timestamp, value, max_len = await self.incoming.get()
             if not max_len:
                 try:
                     with self.max_lens_lock:
@@ -66,7 +64,7 @@ class Storage(Thread):
                 except KeyError:
                     # TODO: set a default max-length?
                     pass
-            with self.storage_lock:
+            async with self.storage_lock:
                 try:
                     self.storage[channel].append((timestamp, value))
                     if max_len and len(self.storage[channel]) > max_len:

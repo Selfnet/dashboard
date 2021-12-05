@@ -1,6 +1,7 @@
 import logging
 import json
 import time
+from aiofile import async_open
 
 from .base.sources import TimedSource
 
@@ -18,9 +19,9 @@ class PersistentStorage(TimedSource):
         except Exception as e:
             logging.info("failed to load PersistenStorage: {exception}".format(exception=str(e)))
 
-    def poll(self):
+    async def poll(self):
         datasets = self.storage.dump()
         data = {"timestamp": time.time(), "data": datasets}
         filename = self.get_config("filename")
-        with open(filename, "w") as f:
-            json.dump(data, f)
+        async with open(filename, "w") as f:
+            await f.write(json.dumps(data))

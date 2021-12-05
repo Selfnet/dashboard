@@ -1,5 +1,5 @@
 import logging
-import subprocess # ever tried urllib in python3 on debian stable?
+import asyncio
 
 from .base.sources import TimedSource
 
@@ -7,7 +7,7 @@ from .base.sources import TimedSource
 
 class Ping(TimedSource):
 
-    def pingcall(self, host, count=1, timeout=1, protocol=4):
+    async def pingcall(self, host, count=1, timeout=1, protocol=4):
         if protocol == 4:
             cmd = "ping"
         else:
@@ -20,11 +20,11 @@ class Ping(TimedSource):
             "-W", str(timeout),
             str(host)
         ]
-        process = subprocess.Popen(args, stdout=subprocess.PIPE)
-        out, err = process.communicate()
+        process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE)
+        out, err = await process.communicate()
         return out
 
-    def poll(self):
+    async def poll(self):
         host = self.get_config("host")
         count = self.get_config("count", 1)
         timeout = self.get_config("timeout", 1)
@@ -34,7 +34,7 @@ class Ping(TimedSource):
         else:
             protocol = 4
         try:
-            out = self.pingcall(host, count, timeout, protocol)
+            out = await self.pingcall(host, count, timeout, protocol)
             lastline = out.strip().split(b"\n")[-1]
             if lastline.startswith(b"rtt min/avg/max/mdev = "):
                 rtt = float(lastline.split(b"/")[4])

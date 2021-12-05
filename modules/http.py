@@ -1,17 +1,19 @@
 import logging
-import requests
+import aiohttp
 
 from .base.sources import TimedSource
 
 
 
 class HTTPGet(TimedSource):
-    def poll(self):
+    async def poll(self):
         url = self.get_config("url")
         try:
-            out = requests.get(url).text
-            value = self.typecast(out.strip())
-            self.push(value)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as resp:
+                    out = await resp.text()
+                    value = self.typecast(out.strip())
+                    self.push(value)
         except Exception as e:
             logging.exception(" ".join([
                 type(e).__name__ + ":",

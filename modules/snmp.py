@@ -1,5 +1,5 @@
 import logging
-import subprocess
+import asyncio
 
 from .base.sources import TimedSource
 
@@ -7,7 +7,7 @@ from .base.sources import TimedSource
 
 class SNMPGet(TimedSource):
 
-    def snmpcall(self, host, oid, version=1, community="public"):
+    async def snmpcall(self, host, oid, version=1, community="public"):
         args = [
             "snmpget",
             "-O", "q",
@@ -16,17 +16,17 @@ class SNMPGet(TimedSource):
             str(host),
             str(oid)
         ]
-        process = subprocess.Popen(args, stdout=subprocess.PIPE)
-        out, err = process.communicate()
+        process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE)
+        out, err = await process.communicate()
         return out
 
-    def poll(self):
+    async def poll(self):
         host = self.get_config("host")
         oid = self.get_config("oid")
         version = self.get_config("version", 1)
         community = self.get_config("community", "public")
         try:
-            out = self.snmpcall(host, oid, version, community)
+            out = await self.snmpcall(host, oid, version, community)
             line = out.split(b"\n")[0]
             if line:
                 value = line.split(b" ")[1].decode("utf-8")
@@ -43,7 +43,7 @@ class SNMPGet(TimedSource):
 
 class SNMPWalkSum(TimedSource):
 
-    def snmpcall(self, host, oid, version=1, community="public"):
+    async def snmpcall(self, host, oid, version=1, community="public"):
         args = [
             "snmpbulkwalk",
             "-O", "q",
@@ -52,17 +52,17 @@ class SNMPWalkSum(TimedSource):
             str(host),
             str(oid)
         ]
-        process = subprocess.Popen(args, stdout=subprocess.PIPE)
-        out, err = process.communicate()
+        process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE)
+        out, err = await process.communicate()
         return out
 
-    def poll(self):
+    async def poll(self):
         host = self.get_config("host")
         oid = self.get_config("oid")
         version = self.get_config("version", 1)
         community = self.get_config("community", "public")
         try:
-            out = self.snmpcall(host, oid, version, community)
+            out = await self.snmpcall(host, oid, version, community)
             total = 0
             for line in out.split(b"\n"):
                 if line:
