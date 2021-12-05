@@ -151,7 +151,7 @@ class Websocket(Worker):
 
     def prepare(self):
         self.permit = self.get_config("permit", "sources")
-        self.addr   = self.get_config("address", "0.0.0.0")
+        self.addr   = self.get_config("address", None)
         self.port   = self.get_config("port", 5000)
 
         if self.permit == "sources":
