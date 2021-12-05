@@ -40,7 +40,7 @@ class OctetsToBps(PubSubSource):
             sources = [sources]
         total_bps = 0
         for source in sources:
-            data = self.pull(channel=source, n=2)
+            data = await self.pull(channel=source, n=2)
             try:
                 timediff = float(data[1][0]) - float(data[0][0])
                 counterdiff = counter_difference(int(data[1][1]), int(data[0][1]))
@@ -60,7 +60,7 @@ class Sum(PubSubSource):
         total = 0
         try:
             for source in self.get_config("source"):
-                timestamp, value = self.pull(channel=source)[0]
+                timestamp, value = await self.pull(channel=source)[0]
                 total += float(value)
             await self.push(total)
         except Exception as e:
