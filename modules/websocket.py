@@ -5,6 +5,7 @@ from .base.worker import Worker
 from asyncio import Lock, Event, Queue
 import asyncio
 import websockets
+import datetime
 
 
 class Listener:
@@ -137,7 +138,7 @@ class WSHandler:
 
 
     async def write_message(self, response):
-        print(datetime.datetime.now.isoformat + ' ' + 'Writing response ' + str(response))
+        print(datetime.datetime.now().isoformat() + ' ' + 'Writing response ' + str(response))
         await self.websocket.send(response)
 
 

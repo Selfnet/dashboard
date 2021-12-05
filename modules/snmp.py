@@ -17,7 +17,7 @@ class SNMPGet(TimedSource):
         ]
         process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         out, err = await process.communicate()
-        print(datetime.datetime.now().isoformat + ' ' + out + ' Error: ' + err)
+        print(datetime.datetime.now().isoformat() + ' ' + out + ' Error: ' + err)
         return out
 
     async def poll(self):
@@ -54,7 +54,7 @@ class SNMPWalkSum(TimedSource):
         ]
         process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         out, err = await process.communicate()
-        print(datetime.datetime.now().isoformat + ' ' + out + ' Error: ' + err)
+        print(datetime.datetime.now().isoformat() + ' ' + out + ' Error: ' + err)
         return out
 
     async def poll(self):
