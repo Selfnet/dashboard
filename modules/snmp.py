@@ -17,7 +17,7 @@ class SNMPGet(TimedSource):
         ]
         process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         out, err = await process.communicate()
-        print(datetime.datetime.now().isoformat() + ' SNMPGet ' + out.decode('utf-8') + ' Error: ' + err.decode('utf-8'))
+        logging.info(datetime.datetime.now().isoformat() + ' SNMPGet ' + out.decode('utf-8') + ' Error: ' + err.decode('utf-8'))
         return out
 
     async def poll(self):
@@ -40,7 +40,6 @@ class SNMPGet(TimedSource):
             ]))
 
 
-
 class SNMPWalkSum(TimedSource):
 
     async def snmpcall(self, host, oid, version=1, community="public"):
@@ -54,7 +53,7 @@ class SNMPWalkSum(TimedSource):
         ]
         process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         out, err = await process.communicate()
-        print(datetime.datetime.now().isoformat() + ' SNMPWalk ' + out.decode('utf-8') + ' Error: ' + err.decode('utf-8'))
+        logging.info(datetime.datetime.now().isoformat() + ' SNMPWalk ' + out.decode('utf-8') + ' Error: ' + err.decode('utf-8'))
         return out
 
     async def poll(self):

@@ -1,5 +1,4 @@
 import logging
-import time
 import json
 from .base.worker import Worker
 from asyncio import Lock, Event, Queue
@@ -111,7 +110,7 @@ class WSHandler:
                         # TODO log malformed request
                         return
                     length = settings.get("length")
-                    length = int(length) if length != None else None
+                    length = int(length) if length is not None else None
                     channels[channel] = await self.storage.get(channel=channel, n=length)
             else:
                 return
@@ -136,9 +135,8 @@ class WSHandler:
             logging.debug('websocket connection closed')
             await self.listener.unsubscribe(self.update)
 
-
     async def write_message(self, response):
-        print(datetime.datetime.now().isoformat() + ' ' + 'Writing response ' + str(response))
+        logging.info(datetime.datetime.now().isoformat() + ' ' + 'Writing response ' + str(response))
         await self.websocket.send(response)
 
 
@@ -152,8 +150,8 @@ class Websocket(Worker):
 
     def prepare(self):
         self.permit = self.get_config("permit", "sources")
-        self.addr   = self.get_config("address", "")
-        self.port   = self.get_config("port", 5000)
+        self.addr = self.get_config("address", "")
+        self.port = self.get_config("port", 5000)
 
         if self.permit == "sources":
             try:
@@ -169,9 +167,8 @@ class Websocket(Worker):
 
         self.listener = Listener(self.storage)
 
-
     async def start(self):
-        print('Starting Websocket')
+        logging.info('Starting Websocket')
         # start websockets
         asyncio.create_task(self.listener.start())
         await websockets.serve(WSHandler(self.listener, self.storage).start, self.addr, self.port)

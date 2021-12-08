@@ -3,6 +3,11 @@ from asyncio import Lock, Event, Queue
 
 class Storage:
 
+    def __init__(self):
+        self.storage = {}
+        self.max_lens = {}
+        self.callbacks = {}
+
     async def set_max_len(self, channel, length):
         """
         Set the default max_len for the named time-series.
@@ -46,11 +51,8 @@ class Storage:
     async def start(self):
 
         self.incoming = Queue()
-        self.storage = {}
         self.storage_lock = Lock()
-        self.max_lens = {}
         self.max_lens_lock = Lock()
-        self.callbacks = {}
         self.callbacks_lock = Lock()
         self.running = Event()
         self.running.set()

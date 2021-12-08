@@ -1,6 +1,3 @@
-import logging
-
-
 class Worker():
 
     def __init__(self, config, objectconfig, storage):
@@ -43,7 +40,7 @@ class Worker():
             pass
 
         # still no luck? has something been set as hard-coded default?
-        if default != None:
+        if default is not None:
             return default
 
         # last measure

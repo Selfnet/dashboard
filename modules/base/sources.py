@@ -55,7 +55,6 @@ class Source(Worker):
         return await self.storage.get(channel, n)
 
 
-
 class TimedSource(Source):
 
     def __init__(self, config, objectconfig, storage):
@@ -70,7 +69,6 @@ class TimedSource(Source):
 
         self.running = Event()
         self.running.set()
-        print(f'Start {self.__class__}')
 
         while self.running.is_set():
 
@@ -87,14 +85,14 @@ class PubSubSource(Source):
         mode = self.get_config("subscribe", mode)
         try:
             source = self.get_config("source")
-            if type(source) == type([]):
+            if isinstance(source, list):
                 if mode == "first":
                     channels = [source[0]]
                 elif mode == "all":
-                    channels = [source]
+                    channels = source
                 else:
                     raise KeyError("invalid PubSub subscribe mode")
-            elif type(source) == type(""):
+            elif isinstance(source, str):
                 channels = [source]
             for channel in channels:
                 await self.storage.subscribe(channel, self.callback)

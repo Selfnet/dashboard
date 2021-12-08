@@ -33,22 +33,24 @@ class WorkerThreads(object):
                         logging.warning("   %s: %s" % (key, value))
 
     def _prepare(self):
+        logging.info('Starting preparation')
         for t in self.active_workers:
             t.prepare()
+        logging.info('Preparation done')
 
     async def _start(self):
-        print('Starting storage')
+        logging.info('Starting storage')
         asyncio.create_task(self.storage.start())
-        print('Starting workers')
+        logging.info('Creating tasks')
         for t in self.active_workers:
-            print('Starting ' + str(t))
             asyncio.create_task(t.start())
+        logging.info('Task creation done')
 
     def start(self):
         self._initialize()
         self._prepare()
         logging.info(str(len(self.active_workers)) + " workers prepared and will be started")
-        print('Starting event loop')
+        logging.info('Starting event loop')
         loop = asyncio.new_event_loop()
         loop.run_until_complete(self._start())
         loop.run_forever()

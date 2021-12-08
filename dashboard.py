@@ -8,9 +8,7 @@ from threadmanagement import WorkerThreads
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("-l", "--loglevel", metavar="LEVEL", type=str,
-        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Loglevel (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
+    parser.add_argument("-l", "--loglevel", metavar="LEVEL", type=str, choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"], help="Loglevel (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     args = parser.parse_args()
 
     if args.loglevel:
