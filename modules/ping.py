@@ -29,7 +29,7 @@ class Ping(TimedSource):
         count = self.get_config("count", 1)
         timeout = self.get_config("timeout", 1)
         protocol = self.get_config("protocol", 4)
-        logging.warning(datetime.datetime.now().isoformat() + ': Starting Ping to host ' + host)
+        logging.info(datetime.datetime.now().isoformat() + ': Starting Ping to host ' + host)
         if protocol == 6 or str(protocol)[-1] == "6":
             protocol = 6
         else:
@@ -49,4 +49,4 @@ class Ping(TimedSource):
                 str(e),
                 "in Ping for \"{host}\"".format(host=host)
             ]))
-        logging.warning(datetime.datetime.now().isoformat() + ': Finished Ping to host ' + host)
+        logging.info(datetime.datetime.now().isoformat() + ': Finished Ping to host ' + host)
