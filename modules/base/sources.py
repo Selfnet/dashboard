@@ -69,11 +69,14 @@ class TimedSource(Source):
 
         self.running = Event()
         self.running.set()
+        asyncio.create_task(self.loop())
 
-        while self.running.is_set():
+    async def loop(self):
 
+        await asyncio.sleep(self.interval)
+        if self.running.is_set():
+            asyncio.create_task(self.loop())
             await self.poll()
-            await asyncio.sleep(self.interval)
 
 
 class PubSubSource(Source):
