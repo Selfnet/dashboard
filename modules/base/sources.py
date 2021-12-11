@@ -84,7 +84,7 @@ class PubSubSource(Source):
     def __init__(self, config, objectconfig, storage):
         super(PubSubSource, self).__init__(config, objectconfig, storage)
 
-    async def subscribe(self, mode="first"):
+    async def subscribe(self, mode="all"):
         mode = self.get_config("subscribe", mode)
         try:
             source = self.get_config("source")
