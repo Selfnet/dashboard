@@ -62,7 +62,7 @@ class Sum(PubSubSource):
         total = 0
         try:
             for source in self.get_config("source"):
-                timestamp, value = await self.pull(channel=source, n=1)
+                value = await self.pull(channel=source, n=1)
                 total += value[0]
             await self.push(total)
         except Exception as e:
