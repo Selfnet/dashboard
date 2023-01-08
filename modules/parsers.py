@@ -35,11 +35,13 @@ class Parser(PubSubSource):
         if path:
             try:
                 value = self.getitem(value, path)
-            except Exception as e:
-                logging.info(str(e))
 
-        # write the data
-        await self.push(value)
+                # write the data
+                await self.push(value)
+
+            except Exception as e:
+                # Write no data, but log the error
+                logging.info(str(e))
 
 
 class JSONParser(Parser):
