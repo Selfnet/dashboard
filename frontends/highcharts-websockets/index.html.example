@@ -1,0 +1,39 @@
+<!doctype html>
+<meta charset=utf-8>
+
+<title>Dashboard</title>
+
+<script type="text/javascript" src="lib/jquery.min.js"></script>
+<script type="text/javascript">
+jQuery.noConflict();
+</script>
+<script type="text/javascript" src="lib/highcharts.js"></script>
+<script type="text/javascript" src="theme.js"></script>
+</head>
+
+<div class="body">
+  <h2>Demo Chart</h2>
+  <div class="chart" id="chart_random" style="width:625px;height:225px;"></div>
+</div>
+
+<script type="text/javascript" src="dashboard.js"></script>
+<script type="text/javascript">
+
+Highcharts.setOptions({
+    global: {
+        useUTC: false
+    }
+});
+
+dashboard = new Dashboard();
+dashboard.url = "ws://localhost:5000/websocket";
+
+randomchart = dashboard.createChart("chart_random", "", "", ["integer"]);
+dashboard.addSeriesToChart(randomchart, "random", "random", 12);
+
+dashboard.start();
+
+
+</script>
+
+

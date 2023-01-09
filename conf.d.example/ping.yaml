@@ -1,0 +1,10 @@
+sources:
+    - Ping:
+        name: ping:google-dns:ipv4
+        host: 8.8.8.8
+    - Ping:
+        name: ping:google-dns:ipv6
+        host: 2001:4860:4860::8888
+        protocol: IPv6  # optional
+        count: 1        # optional
+        timeout: 1      # optional

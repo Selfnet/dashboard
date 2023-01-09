@@ -2,7 +2,7 @@
 
 # dashboard
 *.log
-backend/conf.d/*
+conf.d
 
 # C extensions
 *.so

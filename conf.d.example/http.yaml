@@ -1,0 +1,4 @@
+sources:
+    - HTTPGet:
+        name: localhost:ip-address
+        url: http://icanhazip.com/
