@@ -1,0 +1,19 @@
+sources:
+    - SNMPGet:
+        name: router1:incoming:octets
+        host: router1
+        oid: iso.3.6.1.2.1.31.1.1.1.6.123
+        # the counters don't need to be available via the website
+        silent: True
+    - SNMPGet:
+        name: router2:incoming:octets
+        host: router2
+        oid: iso.3.6.1.2.1.31.1.1.1.6.123
+        # the counters don't need to be available via the website
+        silent: True
+
+    - OctetsToBps:
+        name: uplink:incoming:bps
+        source: # can be a list or a string
+        - router1:incoming:octets
+        - router2:incoming:octets

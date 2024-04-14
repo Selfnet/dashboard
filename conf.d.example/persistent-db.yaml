@@ -1,0 +1,5 @@
+workers:
+  - PersistentStorage:
+    interval: 60
+    # keep data i /tmp - not reboot safe, but no disk writes
+    filename: /tmp/dashboard-cache

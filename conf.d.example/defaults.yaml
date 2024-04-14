@@ -1,0 +1,9 @@
+defaults:
+    interval: 10
+    length: 300
+    Ping:
+        count: 3
+        timeout: 1
+    SNMPGet:
+        version: 2c
+        community: public

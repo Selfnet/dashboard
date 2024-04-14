@@ -1,0 +1,15 @@
+[Unit]
+Description=le dashboard
+After=syslog.target
+
+[Service]
+Type=simple
+User=dashboard
+Group=dashboard
+WorkingDirectory=/opt/dashboard/
+ExecStart=/opt/dashboard/dashboard.py
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

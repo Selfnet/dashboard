@@ -1,0 +1,7 @@
+sources:
+    - Munin:
+        name: localhost:memory:free
+        host: 127.0.0.1
+        port: 4949  # default
+        module: memory
+        key: free
