@@ -121,7 +121,7 @@ class WSHandler:
             response = json.dumps(response_dict)
             await self.write_message(response)
 
-    async def start(self, websocket, path):
+    async def start(self, websocket):
         ''' Loop for Websocket '''
 
         logging.debug('new connection')
