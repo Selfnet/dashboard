@@ -30,7 +30,7 @@ class SNMPGet(TimedSource):
             line = out.split(b"\n")[0]
             if line:
                 value = line.split(b" ")[1].decode("utf-8")
-                value = self.typecast(value)
+                value = self.typecast(value.strip('"'))
                 await self.push(value)
         except Exception as e:
             logging.exception(" ".join([
