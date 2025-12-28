@@ -63,7 +63,8 @@ class Sum(PubSubSource):
         try:
             for source in self.get_config("source"):
                 data = await self.pull(channel=source, n=1)
-                total += data[0][1]
+                if len(data) != 0:
+                    total += data[0][1]
             await self.push(total)
         except Exception as e:
             logging.exception(" ".join([
